@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+
+    
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans+Condensed:wght@300&display=swap" rel="stylesheet">
+    <title>Graphtools - visualize</title>
+    <link rel="stylesheet" href="style_vis.css">
+    <script type="text/javascript" src="papaparse.min.js"></script>
+    <script src="https://d3js.org/d3.v4.js"></script>
+    <script src="https://d3js.org/d3-scale.v3.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/underscore@1.13.1/underscore-umd-min.js"></script>
+    <!-- Load color palette -->
+    <script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
+
+
+    <link href="https://cdn.jsdelivr.net/gh/interactiveJS/interactiveJS@v2.0.1/src/css/minMaxClose.min.css"
+        rel="stylesheet" />
+    <script
+        src="https://cdn.jsdelivr.net/gh/interactiveJS/interactiveJS@v2.0.1/src/individuals/minMaxClose.min.js"></script>
+
+
+</head>
+
+<body>
+    <input type="checkbox" id="check" style="z-index: 11;">
+    <label for="check">
+        <i class="fa fa-fw fa-bars" id="cancel"></i>
+    </label>
+
+    <div class="sidebar" style="z-index: 20; position: fixed;">
+        <header>
+
+        </header>
+        <ul>
+            <li><a class="active "href="index.html"><i class="fa fa-fw fa-home"></i> Home</a></li>
+            <li><a href="aboutus.html"><i class="fa fa-fw fa-male"></i> About us</a></li>
+        </ul>
+    </div>
+
+    <main class="navbar" style="z-index: 21; position: fixed;">
+        <header>
+            <h1>Good <span> Afternoon {Insert Name}</span></h1>
+        </header>
+    </main>
+
+    <div id="graph1" name="Temperature" class="graph1">
+        <script>
+            // To make sure you cant close the graph, we put close on false
+            let options1 = {
+                close: true,
+                minMaxIcons: false
+            };
+            minMaxClose('graph1', options1);
+        </script>
+
+        <div id="graph1_header">Temperature</div>
+        <div class="graph1_tools">
+        </div>
+        <div class="graph1_graph">
+
+        </div>
+
+        <script>
+            // This is the code to make the graph div's movable by holding the mousebutton on the header
+
+            // Graph 1 is being moved here, so we change the element "graph1"
+            dragElement(document.getElementById("graph1"));
+
+            function dragElement(elmnt) {
+                // These variables are used to determine the old and new positions of the div
+                // position1 = old X-coordinate
+                // position2 = old Y-coordinate
+                // position3 = new X-coordinate
+                // position4 = new Y-coordinate
+                var position1 = 0, position2 = 0, position3 = 0, position4 = 0;
+                if (document.getElementById(elmnt.id + "_header")) {
+                    // You move the div (in this case graph1)  by holding the mousebutton on the header.
+                    document.getElementById(elmnt.id + "_header").
+
+                        // If you press the mouse button (on the header) the dragMouseDown function will start (so that if the user moves his/her mouse the div will also move)
+                        onmousedown = dragMouseDown;
+                }
+
+                function dragMouseDown(e) {
+                    e = e || window.event;
+                    e.preventDefault();
+
+                    // Here we get the current position of the user's mouse on the screen
+                    position1 = e.clientX;
+                    position2 = e.clientY;
+
+                    // If the user stops holding left click, the div stops moving
+                    document.onmouseup = closeDragElement;
+
+                    // If the user moves the mouse, the function elementDrag will be calles
+                    document.onmousemove = elementDrag;
+                }
+
+                function elementDrag(e) {
+                    e = e || window.event;
+                    e.preventDefault();
+
+                    // The user moves his mouse. Here values for the new position are calculated
+                    position3 = position1 - e.clientX;
+                    position4 = position2 - e.clientY;
+                    position1 = e.clientX;
+                    position2 = e.clientY;
+
+                    // We set the new position of the element (graph1) according the what we just calculated
+                    elmnt.style.top = (elmnt.offsetTop - position4) + "px";
+                    elmnt.style.left = (elmnt.offsetLeft - position3) + "px";
+                }
+
+                function closeDragElement() {
+                    // When the mouse is released from the header, onmouseup and onmousemove will be set the null, because of this, the div will stop moving
+                    document.onmouseup = null;
+                    document.onmousemove = null;
+                }
+            }
+        </script>
+    </div>
+
+
+    <div id="graph2" name="Humidity" class="graph2">
+        <script>
+            // To make sure you cant close the graph, we put close on false
+            let options2 = {
+                close: true,
+                minMaxIcons: false
+            };
+            minMaxClose('graph2', options2);
+        </script>
+
+        <div id="graph2_header">Humidity</div>
+        <div class="graph2_tools">
+        </div>
+        <div id="graph2_graph">
+            <script src="graph1.js"></script>
+        </div>
+
+        <script>
+            // This is the code to make the graph div's movable by holding the mousebutton on the header
+
+            // Graph 2 is being moved here, so we change the element "graph2"
+            dragElement(document.getElementById("graph2"));
+
+            function dragElement(elmnt) {
+                // These variables are used to determine the old and new positions of the div
+                // position1 = old X-coordinate
+                // position2 = old Y-coordinate
+                // position3 = new X-coordinate
+                // position4 = new Y-coordinate
+                var position1 = 0, position2 = 0, position3 = 0, position4 = 0;
+                if (document.getElementById(elmnt.id + "_header")) {
+                    // You move the div (in this case graph2)  by holding the mousebutton on the header.
+                    document.getElementById(elmnt.id + "_header").
+
+                        // If you press the mouse button (on the header) the dragMouseDown function will start (so that if the user moves his/her mouse the div will also move)
+                        onmousedown = dragMouseDown;
+                }
+
+                function dragMouseDown(e) {
+                    e = e || window.event;
+                    e.preventDefault();
+
+                    // Here we get the current position of the user's mouse on the screen
+                    position1 = e.clientX;
+                    position2 = e.clientY;
+
+                    // If the user stops holding left click, the div stops moving
+                    document.onmouseup = closeDragElement;
+
+                    // If the user moves the mouse, the function elementDrag will be calles
+                    document.onmousemove = elementDrag;
+                }
+
+                function elementDrag(e) {
+                    e = e || window.event;
+                    e.preventDefault();
+
+                    // The user moves his mouse. Here values for the new position are calculated
+                    position3 = position1 - e.clientX;
+                    position4 = position2 - e.clientY;
+                    position1 = e.clientX;
+                    position2 = e.clientY;
+
+                    // We set the new position of the element (graph2) according the what we just calculated
+                    elmnt.style.top = (elmnt.offsetTop - position4) + "px";
+                    elmnt.style.left = (elmnt.offsetLeft - position3) + "px";
+                }
+
+                function closeDragElement() {
+                    // When the mouse is released from the header, onmouseup and onmousemove will be set the null, because of this, the div will stop moving
+                    document.onmouseup = null;
+                    document.onmousemove = null;
+                }
+            }
+        </script>
+    </div>
+
+
+    
+
+</body>
+
+</html>
