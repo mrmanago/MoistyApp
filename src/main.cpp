@@ -33,7 +33,7 @@ void setup() {
   // Set outputs to LOW
   digitalWrite(output26, LOW);
   digitalWrite(output27, LOW);
-
+  
   // Connect to Wi-Fi network with SSID and password
   Serial.print("Connecting to ");
   Serial.println(ssid);
