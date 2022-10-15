@@ -23,6 +23,10 @@ import { Container } from "@mui/system";
 import Link from "@mui/material/Link";
 import Grid from "@mui/material/Grid";
 import Paper from "@mui/material/Paper";
+import Button from "@mui/material/Button";
+
+import {w3cwebsocket as W3CWebSocket} from "websocket";
+import {useState, useEffect, useRef} from 'react';
 
 const drawerWidth = 240;
 
@@ -178,6 +182,36 @@ function App() {
     setOpen(!open);
   };
 
+  const websocket = useRef(null);
+  const [LED, setLED] = useState(false);
+
+  useEffect(() => {
+    websocket.current = new W3CWebSocket('ws://192.168.2.1/ws');
+    websocket.current.onmessage = (message) => {
+      if (dataFromSever.type === "message") {
+        setLED(dataFromSever.LED)
+      }
+    };
+    return () => websocket.current.close();
+  }, [])
+
+  function sendUpdate({ led = LED }) {
+    websocket.current.send(
+      JSON.stringify({
+        type: "message",
+        LED: led,
+      })
+    );
+  }
+
+  const LEDon = () => {
+    sendUpdate({ led: true });
+  }
+
+  const LEDoff = () => {
+    sendUpdate({ led: false });
+  }
+
   return (
     <ThemeProvider theme={mdTheme}>
       <Box sx={{ display: "flex" }}>
@@ -294,6 +328,8 @@ function App() {
                   <Temperature />
                 </Paper>
               </Grid>
+              <h1>Currently {LED ? "ON" : "OFF"}</h1>
+              <Button variant="contained" onClick={LED ? LEDoff : LEDon}>{LED ? "Turn Off" : "Turn On"}</Button>
             </Grid>
           </Container>
         </Box>
