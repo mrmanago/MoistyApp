@@ -161,7 +161,7 @@ function App() {
     setOpen(!open);
   };
 
-  const websocket = useRef(null);
+  //const websocket = useRef(null);
 
   // useEffect(() => {
   //   websocket.current = new W3CWebSocket('ws://192.168.2.1/ws');

@@ -1,5 +1,5 @@
 import * as React from "react";
-import {useState} from "react";
+import {useState, useEffect, useRef} from "react";
 import dayjs from 'dayjs';
 import { getSunrise, getSunset } from 'sunrise-sunset-js';
 import {
@@ -13,6 +13,7 @@ import {
     TimePicker,
 } from '@mui/x-date-pickers/';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { w3cwebsocket as W3CWebSocket } from "websocket";
 
 const LightControl = () => {
     const sunrise = getSunrise(51.447710, 5.485856);
@@ -26,12 +27,46 @@ const LightControl = () => {
     const [supplementalStart, setSupplementalStart] = useState(dayjs(sunrise)); // time to turn off led if supplemental is on
     const [supplementalEnd, setSupplementalEnd] = useState(dayjs(sunset)); // time to turn on led if supplemental is on
 
+    const websocket = useRef(null);
+
+    useEffect(() => {
+        websocket.current = new WebSocket("ws:/192.168.2.1/ws-api/led");
+        websocket.current.onopen = () => console.log("WebSocket LED opened");
+        websocket.current.onclose = () => console.log("Websocket LED closed");
+        
+        return () => websocket.current.close();
+    }, []);
+
+    useEffect(() => {
+        if (websocket.readyState != WebSocket.OPEN) {
+            console.log("websocket not available");
+        } else {
+            console.log("ws message sent");
+            websocket.current.send(
+                JSON.stringify({
+                    type: "message",
+                    LED: LED,
+                })
+            );
+        }
+        console.log(
+            JSON.stringify({
+                type: "message",
+                LED: LED,
+            })
+        );
+    }, [LED]);
+
+    const handleLED = () => {
+        setLED(!LED);
+    }
+
     return (
         <React.Fragment>
             <Typography component="h2" variant="h6" color="primary" gutterBottom>
                 LED
             </Typography>
-            <Button variant="contained">
+            <Button variant="contained" onClick={handleLED}>
                 {LED ? "ON" : "OFF"}
             </Button>
             Schedule
@@ -70,7 +105,6 @@ const LightControl = () => {
                             value={scheduleEnd}
                             onChange={(newValue) => {
                                 setScheduleEnd(newValue);
-                                console.log(newValue);
                             }}
                             renderInput={(params) => <TextField {...params} />}
                         />
@@ -90,7 +124,6 @@ const LightControl = () => {
                             value={supplementalEnd}
                             onChange={(newValue) => {
                                 setSupplementalEnd(newValue);
-                                console.log(newValue);
                             }}
                             renderInput={(params) => <TextField {...params} />}
                         />
