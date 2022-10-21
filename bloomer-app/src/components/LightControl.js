@@ -15,6 +15,8 @@ import {
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { w3cwebsocket as W3CWebSocket } from "websocket";
 
+// difference between w3cwebsocket and websocket?
+
 const LightControl = () => {
     const sunrise = getSunrise(51.447710, 5.485856);
     const sunset = getSunset(51.447710, 5.485856);
@@ -30,13 +32,14 @@ const LightControl = () => {
     const websocket = useRef(null);
 
     useEffect(() => {
-        websocket.current = new WebSocket("ws:/192.168.2.1/ws-api/led");
+        websocket.current = new W3CWebSocket("ws:/192.168.2.1/ws-api/led");
         websocket.current.onopen = () => console.log("WebSocket LED opened");
         websocket.current.onclose = () => console.log("Websocket LED closed");
         
         return () => websocket.current.close();
     }, []);
 
+    // TODO: add the rest of the variables
     useEffect(() => {
         if (websocket.readyState != WebSocket.OPEN) {
             console.log("websocket not available");
@@ -57,16 +60,12 @@ const LightControl = () => {
         );
     }, [LED]);
 
-    const handleLED = () => {
-        setLED(!LED);
-    }
-
     return (
         <React.Fragment>
             <Typography component="h2" variant="h6" color="primary" gutterBottom>
                 LED
             </Typography>
-            <Button variant="contained" onClick={handleLED}>
+            <Button variant="contained" onClick={() => setLED(!LED)}>
                 {LED ? "ON" : "OFF"}
             </Button>
             Schedule

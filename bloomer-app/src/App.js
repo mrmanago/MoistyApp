@@ -24,6 +24,7 @@ import Link from "@mui/material/Link";
 import Grid from "@mui/material/Grid";
 import Paper from "@mui/material/Paper";
 import LightControl from "./components/LightControl"
+import TempSensor from "./components/TempSensor";
 
 import {w3cwebsocket as W3CWebSocket} from "websocket";
 import {useState, useEffect, useRef} from 'react';
@@ -268,6 +269,18 @@ function App() {
                   }}
                 >
                   <LightControl />
+                </Paper>
+              </Grid>
+              <Grid item xs={12} md={4} lg={3}>
+                <Paper
+                  sx={{
+                    p: 2,
+                    display: "flex",
+                    flexDirection: "column",
+                    height: 500,
+                  }}
+                >
+                  <TempSensor />
                 </Paper>
               </Grid>
             </Grid>
