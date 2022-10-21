@@ -23,7 +23,7 @@ import { Container } from "@mui/system";
 import Link from "@mui/material/Link";
 import Grid from "@mui/material/Grid";
 import Paper from "@mui/material/Paper";
-import Button from "@mui/material/Button";
+import LightControl from "./components/LightControl"
 
 import {w3cwebsocket as W3CWebSocket} from "websocket";
 import {useState, useEffect, useRef} from 'react';
@@ -155,27 +155,6 @@ function preventDefault(event) {
   event.preventDefault();
 }
 
-const Temperature = () => {
-  return (
-    <React.Fragment>
-      <Typography component="h2" variant="h6" color="primary" gutterBottom>
-        Temperature
-      </Typography>
-      <Typography component="p" variant="h4">
-        23°C
-      </Typography>
-      <Typography color="text.secondary" sx={{ flex: 1 }}>
-        at 13:12, 10-10-2022
-      </Typography>
-      <div>
-        <Link color="primary" href="#" onClick={preventDefault}>
-          View History
-        </Link>
-      </div>
-    </React.Fragment>
-  );
-};
-
 function App() {
   const [open, setOpen] = React.useState(true);
   const toggleDrawer = () => {
@@ -183,34 +162,33 @@ function App() {
   };
 
   const websocket = useRef(null);
-  const [LED, setLED] = useState(false);
 
-  useEffect(() => {
-    websocket.current = new W3CWebSocket('ws://192.168.2.1/ws');
-    websocket.current.onmessage = (message) => {
-      if (dataFromSever.type === "message") {
-        setLED(dataFromSever.LED)
-      }
-    };
-    return () => websocket.current.close();
-  }, [])
+  // useEffect(() => {
+  //   websocket.current = new W3CWebSocket('ws://192.168.2.1/ws');
+  //   websocket.current.onmessage = (message) => {
+  //     if (dataFromSever.type === "message") {
+  //       setLED(dataFromSever.LED)
+  //     }
+  //   };
+  //   return () => websocket.current.close();
+  // }, [])
 
-  function sendUpdate({ led = LED }) {
-    websocket.current.send(
-      JSON.stringify({
-        type: "message",
-        LED: led,
-      })
-    );
-  }
+  // function sendUpdate({ led = LED }) {
+  //   websocket.current.send(
+  //     JSON.stringify({
+  //       type: "message",
+  //       LED: led,
+  //     })
+  //   );
+  // }
 
-  const LEDon = () => {
-    sendUpdate({ led: true });
-  }
+  // const LEDon = () => {
+  //   sendUpdate({ led: true });
+  // }
 
-  const LEDoff = () => {
-    sendUpdate({ led: false });
-  }
+  // const LEDoff = () => {
+  //   sendUpdate({ led: false });
+  // }
 
   return (
     <ThemeProvider theme={mdTheme}>
@@ -286,50 +264,12 @@ function App() {
                     p: 2,
                     display: "flex",
                     flexDirection: "column",
-                    height: 240,
+                    height: 500,
                   }}
                 >
-                  <Temperature />
+                  <LightControl />
                 </Paper>
               </Grid>
-              <Grid item xs={12} md={4} lg={3}>
-                <Paper
-                  sx={{
-                    p: 2,
-                    display: "flex",
-                    flexDirection: "column",
-                    height: 240,
-                  }}
-                >
-                  <Temperature />
-                </Paper>
-              </Grid>
-              <Grid item xs={12} md={4} lg={3}>
-                <Paper
-                  sx={{
-                    p: 2,
-                    display: "flex",
-                    flexDirection: "column",
-                    height: 240,
-                  }}
-                >
-                  <Temperature />
-                </Paper>
-              </Grid>
-              <Grid item xs={12} md={4} lg={3}>
-                <Paper
-                  sx={{
-                    p: 2,
-                    display: "flex",
-                    flexDirection: "column",
-                    height: 240,
-                  }}
-                >
-                  <Temperature />
-                </Paper>
-              </Grid>
-              <h1>Currently {LED ? "ON" : "OFF"}</h1>
-              <Button variant="contained" onClick={LED ? LEDoff : LEDon}>{LED ? "Turn Off" : "Turn On"}</Button>
             </Grid>
           </Container>
         </Box>
