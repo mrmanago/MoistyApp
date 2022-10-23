@@ -56,9 +56,10 @@ const LightControl = () => {
             JSON.stringify({
                 type: "message",
                 LED: LED,
+                schedule: schedule,
             })
         );
-    }, [LED]);
+    }, [LED, schedule]);
 
     return (
         <React.Fragment>

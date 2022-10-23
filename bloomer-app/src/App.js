@@ -1,44 +1,62 @@
+//React and hooks
 import * as React from "react";
-import { styled, createTheme, ThemeProvider } from "@mui/material/styles";
-import MuiAppBar from "@mui/material/AppBar";
-import CssBaseline from "@mui/material/CssBaseline";
-import MuiDrawer from "@mui/material/Drawer";
-import Box from "@mui/material/Box";
-import Toolbar from "@mui/material/Toolbar";
-import List from "@mui/material/List";
-import Typography from "@mui/material/Typography";
-import Divider from "@mui/material/Divider";
-import IconButton from "@mui/material/IconButton";
-import MenuIcon from "@mui/icons-material/Menu";
-import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
-import ListItemButton from "@mui/material/ListItemButton";
-import ListItemIcon from "@mui/material/ListItemIcon";
-import ListItemText from "@mui/material/ListItemText";
-import ListSubheader from "@mui/material/ListSubheader";
-import DashboardIcon from "@mui/icons-material/Dashboard";
-import BarChartIcon from "@mui/icons-material/BarChart";
-import LayersIcon from "@mui/icons-material/Layers";
-import YardIcon from "@mui/icons-material/Yard";
-import { Container } from "@mui/system";
-import Link from "@mui/material/Link";
-import Grid from "@mui/material/Grid";
-import Paper from "@mui/material/Paper";
-import LightControl from "./components/LightControl"
-import TempSensor from "./components/TempSensor";
+import { useState, useEffect, useRef } from "react";
 
-import {w3cwebsocket as W3CWebSocket} from "websocket";
-import {useState, useEffect, useRef} from 'react';
+// MaterialUI themeing
+import { styled, createTheme, ThemeProvider } from "@mui/material/styles";
+
+// MaterialUI Components
+import {
+  Box,
+  Button,
+  Container,
+  CssBaseline,
+  Divider,
+  Grid,
+  IconButton,
+  List,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
+  Paper,
+  TextField,
+  Toolbar,
+  Typography,
+} from '@mui/material';
+import MuiAppBar from "@mui/material/AppBar";
+import MuiDrawer from "@mui/material/Drawer";
+
+// MUIX
+import {
+    LocalizationProvider,
+    TimePicker,
+} from '@mui/x-date-pickers/';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+
+// Icons
+import {
+  ChevronLeft,
+  LocalFlorist,
+  Menu,
+  PowerSettingsNew,
+  Timelapse
+} from "@mui/icons-material/";
+
+// MISC imports
+import { w3cwebsocket as W3CWebSocket } from "websocket";
+import dayjs from 'dayjs';
+import { getSunrise, getSunset } from 'sunrise-sunset-js';
 
 const drawerWidth = 240;
 
-const mdTheme = createTheme({
+const theme = createTheme({
   palette: {
     type: "light",
     primary: {
       main: "#608c66",
     },
     secondary: {
-      main: "#e0f6e3",
+      main: "#084A00",
     },
     warning: {
       main: "#ffc775",
@@ -53,7 +71,21 @@ const mdTheme = createTheme({
       main: "#c0ffa8",
     },
   },
+  components: {
+    MuiListItemButton: {
+      styleOverrides: {
+        root: {
+          "&.Mui-selected": {
+            backgroundColor: `#95DE8E`,
+            borderLeft: `5px solid #608c66`,
+          }
+        }
+      }
+    }
+  },
 });
+
+
 
 const AppBar = styled(MuiAppBar, {
   shouldForwardProp: (prop) => prop !== "open",
@@ -99,100 +131,82 @@ const Drawer = styled(MuiDrawer, {
   },
 }));
 
-const mainListItems = (
-  <React.Fragment>
-    <ListItemButton>
-      <ListItemIcon>
-        <DashboardIcon />
-      </ListItemIcon>
-      <ListItemText primary="Dashboard" />
-    </ListItemButton>
-    <ListItemButton>
-      <ListItemIcon>
-        <BarChartIcon />
-      </ListItemIcon>
-      <ListItemText primary="Reports" />
-    </ListItemButton>
-    <ListItemButton>
-      <ListItemIcon>
-        <LayersIcon />
-      </ListItemIcon>
-      <ListItemText primary="Schedules" />
-    </ListItemButton>
-  </React.Fragment>
-);
+// TODO move websocket to appjs
+// TODO send/receive message in appjs to reduce websockets
+// TODO Add pages
+// TODO add plant specific behavior
+// TODO Add ability to choose plants
 
-// TODO: make list dynamic with adding plants and getting rid of plants
-
-const secondaryListItems = (
-  <React.Fragment>
-    <ListSubheader component="div" inset>
-      Plants
-    </ListSubheader>
-    <ListItemButton>
-      <ListItemIcon>
-        <YardIcon />
-      </ListItemIcon>
-      <ListItemText primary="Basil" />
-    </ListItemButton>
-    <ListItemButton>
-      <ListItemIcon>
-        <YardIcon />
-      </ListItemIcon>
-      <ListItemText primary="Mint" />
-    </ListItemButton>
-    <ListItemButton>
-      <ListItemIcon>
-        <YardIcon />
-      </ListItemIcon>
-      <ListItemText primary="Lettuce" />
-    </ListItemButton>
-  </React.Fragment>
-);
-
-// TODO make card component with props to feed
-
-function preventDefault(event) {
-  event.preventDefault();
-}
 
 function App() {
-  const [open, setOpen] = React.useState(true);
+  // Sunrise and Sunset Time for TUe Campus
+  const sunrise = getSunrise(51.447710, 5.485856);
+  const sunset = getSunset(51.447710, 5.485856);
+
+  // UI useStates
+  const [open, setOpen] = useState(true);
+  const [selectedIndex, setSelectedIndex] = useState(0);
+
+  // Websocket Message useStates
+  const [LED, setLED] = useState(false); // LED on/off
+  const [LEDSchedule, setLEDSchedule] = useState(false); // Wether or not the LED schedule is on at all
+  const [LEDScheduleStart, setLEDScheduleStart] = useState(dayjs().hour(6).minute(0)); // Start time of LED TODO respond to plants
+  const [LEDScheduleEnd, setLEDScheduleEnd] = useState(dayjs().hour(20).minute(0)); // End time of LED TODO respond to plants
+  const [supplemental, setSupplemental] = useState(false); // Supplemental light mode state. when false complete mode is on
+  const [supplementalStart, setSupplementalStart] = useState(dayjs(sunrise)); // time when the LED turns OFF
+  const [supplementalEnd, setSupplementalEnd] = useState(dayjs(sunset)); // time to turn on led
+  const [temp, setTemp] = useState(0);
+
+  // Websocket and message handlers
+  const websocket = useRef(null);
+  useEffect(() => {
+        websocket.current = new W3CWebSocket("ws:/192.168.2.1/ws-api/led");
+        websocket.current.onopen = () => console.log("WebSocket opened");
+        websocket.current.onclose = () => console.log("Websocket closed");
+
+        websocket.current.onmessage = (message) => {
+            const dataFromServer = JSON.parse(message.data);
+            console.log("got reply: ");
+            console.log(dataFromServer);
+            if (dataFromServer.type === "LEDControl") {
+                setLED(dataFromServer.LEDControl);
+            }
+        }
+        
+        return () => websocket.current.close();
+    }, []);
+
+  useEffect(() => {
+      if (websocket.readyState != WebSocket.OPEN) {
+          console.log("websocket not available");
+      } else {
+          console.log("ws LED message sent");
+          websocket.current.send(
+              JSON.stringify({
+                  type: "LEDControl",
+                  LED: LED,
+              })
+          );
+      }
+      console.log(
+          JSON.stringify({
+              type: "LEDControl",
+              LED: LED,
+          })
+      );
+  }, [LED]);
+
+  // UI Handlers
   const toggleDrawer = () => {
     setOpen(!open);
   };
 
-  //const websocket = useRef(null);
-
-  // useEffect(() => {
-  //   websocket.current = new W3CWebSocket('ws://192.168.2.1/ws');
-  //   websocket.current.onmessage = (message) => {
-  //     if (dataFromSever.type === "message") {
-  //       setLED(dataFromSever.LED)
-  //     }
-  //   };
-  //   return () => websocket.current.close();
-  // }, [])
-
-  // function sendUpdate({ led = LED }) {
-  //   websocket.current.send(
-  //     JSON.stringify({
-  //       type: "message",
-  //       LED: led,
-  //     })
-  //   );
-  // }
-
-  // const LEDon = () => {
-  //   sendUpdate({ led: true });
-  // }
-
-  // const LEDoff = () => {
-  //   sendUpdate({ led: false });
-  // }
+  const handleListItemClick = (event, index) => {
+    setSelectedIndex(index);
+  };
 
   return (
-    <ThemeProvider theme={mdTheme}>
+    <ThemeProvider theme={theme}>
       <Box sx={{ display: "flex" }}>
         <CssBaseline />
         <AppBar position="absolute" open={open}>
@@ -211,7 +225,7 @@ function App() {
                 ...(open && { display: "none" }),
               }}
             >
-              <MenuIcon />
+              <Menu />
             </IconButton>
             <Typography
               component="h1"
@@ -234,16 +248,45 @@ function App() {
             }}
           >
             <IconButton onClick={toggleDrawer}>
-              <ChevronLeftIcon />
+              <ChevronLeft />
             </IconButton>
           </Toolbar>
           <Divider />
+          {/* Navigation */}
           <List component="nav">
-            {mainListItems}
+            <ListItemButton
+              selected={selectedIndex === 0}
+              onClick={(event) => handleListItemClick(event, 0)}
+            >
+              <ListItemIcon>
+                <LocalFlorist />
+              </ListItemIcon>
+              <ListItemText primary="Monitor" />
+            </ListItemButton>
+            <ListItemButton
+              selected={selectedIndex === 1}
+              onClick={(event) => handleListItemClick(event, 1)}
+            >
+              <ListItemIcon>
+                <PowerSettingsNew/>
+              </ListItemIcon>
+              <ListItemText primary="Control" />
+            </ListItemButton>
+            <ListItemButton
+              selected={selectedIndex === 2}
+              onClick={(event) => handleListItemClick(event, 2)}
+            >
+              <ListItemIcon>
+                <Timelapse />
+              </ListItemIcon>
+              <ListItemText primary="Schedules" />
+            </ListItemButton>
             <Divider sx={{ my: 1 }} />
-            {secondaryListItems}
+            {/* Plant Adding */}
           </List>
         </Drawer>
+
+        {/* Main Page */}
         <Box
           component="main"
           sx={{
@@ -259,30 +302,85 @@ function App() {
           <Toolbar />
           <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
             <Grid container spacing={3}>
-              <Grid item xs={12} md={4} lg={3}>
-                <Paper
-                  sx={{
-                    p: 2,
-                    display: "flex",
-                    flexDirection: "column",
-                    height: 500,
-                  }}
-                >
-                  <LightControl />
-                </Paper>
-              </Grid>
-              <Grid item xs={12} md={4} lg={3}>
-                <Paper
-                  sx={{
-                    p: 2,
-                    display: "flex",
-                    flexDirection: "column",
-                    height: 500,
-                  }}
-                >
-                  <TempSensor />
-                </Paper>
-              </Grid>
+              {/* Monitor Page */}
+              {selectedIndex === 0 &&
+                //Temp
+                <Grid item xs={12} md={4} lg={3}>
+                  <Paper
+                    sx={{
+                      p: 2,
+                      display: "flex",
+                      flexDirection: "column",
+                      height: 200,
+                    }}
+                  >
+                    <Typography component="h2" variant="h6" color="primary" gutterBottom>
+                      TEMP: {temp}
+                    </Typography>
+                  </Paper>
+                </Grid>
+              }
+              
+              {/* Control Page */}
+              {selectedIndex === 1 &&
+                // LED
+                <Grid item xs={12} md={4} lg={3}>
+                  <Paper
+                    sx={{
+                      p: 2,
+                      display: "flex",
+                      flexDirection: "column",
+                      height: 200,
+                    }}
+                  >
+                    {/* LED CONTROL */}
+                    <Typography component="h2" variant="h6" color="primary" gutterBottom>
+                    LED
+                    </Typography>
+
+                    <Button variant="contained" onClick={() => setLED(!LED)}>
+                        {LED ? "ON" : "OFF"}
+                    </Button>
+                  </Paper>
+                </Grid>
+              }
+
+              {/* Schedule Page */}
+              {selectedIndex === 2 &&
+                // Water pump schedule
+                <React.Fragment>
+                  <Grid item xs={12} md={4} lg={3}>
+                  <Paper
+                    sx={{
+                      p: 2,
+                      display: "flex",
+                      flexDirection: "column",
+                      height: 200,
+                    }}
+                  >
+                    <Typography component="h2" variant="h6" color="primary" gutterBottom>
+                      Water Pump
+                    </Typography>
+                  </Paper>
+                </Grid>
+                {/* LED schedule */}
+                <Grid item xs={12} md={4} lg={3}>
+                  <Paper
+                    sx={{
+                      p: 2,
+                      display: "flex",
+                      flexDirection: "column",
+                      height: 200,
+                    }}
+                  >
+                    <Typography component="h2" variant="h6" color="primary" gutterBottom>
+                      Water Pump
+                    </Typography>
+                  </Paper>
+                </Grid>
+                </React.Fragment>
+              }
+
             </Grid>
           </Container>
         </Box>
