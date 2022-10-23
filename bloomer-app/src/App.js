@@ -7,15 +7,20 @@ import { styled, createTheme, ThemeProvider } from "@mui/material/styles";
 
 // MaterialUI Components
 import {
+  Avatar,
   Box,
   Button,
   ButtonGroup,
   Container,
   CssBaseline,
+  Dialog,
+  DialogTitle,
   Divider,
   Grid,
   IconButton,
   List,
+  ListItem,
+  ListItemAvatar,
   ListItemButton,
   ListItemIcon,
   ListItemText,
@@ -26,6 +31,7 @@ import {
 } from '@mui/material';
 import MuiAppBar from "@mui/material/AppBar";
 import MuiDrawer from "@mui/material/Drawer";
+import { blue } from '@mui/material/colors';
 
 // MUIX
 import {
@@ -36,7 +42,9 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 
 // Icons
 import {
+  AddCircle,
   ChevronLeft,
+  Delete,
   LocalFlorist,
   Menu,
   PowerSettingsNew,
@@ -49,6 +57,27 @@ import dayjs from 'dayjs';
 import { getSunrise, getSunset } from 'sunrise-sunset-js';
 
 const drawerWidth = 240;
+
+// TODO: put in researched values
+
+// Plant Specific behavior. scale on 1-5, 5 being highest. Pump: x times a day
+const plantList = [
+  {
+    Name: "Basil",
+    Tough: 3,
+    Pump: 4,
+  },
+  {
+    Name: "Mint",
+    Tough: 4,
+    Pump: 3,
+  },
+  {
+    Name: "Thyme",
+    Tough: 5,
+    Pump: 3,
+  },
+];
 
 const theme = createTheme({
   palette: {
@@ -85,8 +114,6 @@ const theme = createTheme({
     }
   },
 });
-
-
 
 const AppBar = styled(MuiAppBar, {
   shouldForwardProp: (prop) => prop !== "open",
@@ -132,14 +159,40 @@ const Drawer = styled(MuiDrawer, {
   },
 }));
 
-// TODO move websocket to appjs
-// TODO send/receive message in appjs to reduce websockets
-// TODO Add pages
 // TODO add plant specific behavior
 // TODO Add ability to choose plants
 
+const AddPlant = (props) => {
+  const { onClose, selectedValue, open } = props;
 
-function App() {
+  const handleClose = () => {
+    onClose(selectedValue);
+  };
+
+  const handleListItemClick = (value) => {
+    onClose(value);
+  };
+
+  return(
+    <Dialog onClose={handleClose} open={open}>
+      <DialogTitle>Select Plant</DialogTitle>
+      <List sx={{ pt: 0 }}>
+        {plantList.map((plant) => (
+          <ListItem button onClick={() => handleListItemClick(plant)} key={plant.Name}>
+            <ListItemAvatar>
+              <Avatar sx={{ bgcolor: blue[100], color: blue[600] }}>
+                <LocalFlorist />
+              </Avatar>
+            </ListItemAvatar>
+            <ListItemText primary={plant.Name} />
+          </ListItem>
+        ))}
+      </List>
+    </Dialog>
+  );
+}
+
+const App = () => {
   // Sunrise and Sunset Time for TUe Campus
   const sunrise = getSunrise(51.447710, 5.485856);
   const sunset = getSunset(51.447710, 5.485856);
@@ -147,6 +200,8 @@ function App() {
   // UI useStates
   const [open, setOpen] = useState(true);
   const [selectedIndex, setSelectedIndex] = useState(0);
+  const [plantOpen, setPlantOpen] = useState(false);
+  const [selectedValue, setSelectedValue] = useState(plantList[0].Name);
 
   // Websocket Message useStates
   const [LED, setLED] = useState(false); // LED on/off
@@ -156,45 +211,58 @@ function App() {
   const [supplemental, setSupplemental] = useState(false); // Supplemental light mode state. when false complete mode is on
   const [supplementalStart, setSupplementalStart] = useState(dayjs(sunrise)); // time when the LED turns OFF
   const [supplementalEnd, setSupplementalEnd] = useState(dayjs(sunset)); // time to turn on led
+
+  const [pump, setPump] = useState(false); // Pump on/off
+
   const [temp, setTemp] = useState(0);
 
-  // Websocket and message handlers
+  // Plant
+  const [plants, setPlants] = useState([plantList[0]]);
+  const [plantAmount, setPlantAmount] = useState(3);
+
+  // Websocket init and client message receiving
+  // TODO add all the other states. Need JSON format for that
   const websocket = useRef(null);
   useEffect(() => {
-        websocket.current = new W3CWebSocket("ws://192.168.4.1/ws");
-        websocket.current.onopen = () => console.log("WebSocket opened");
-        websocket.current.onclose = () => console.log("Websocket closed");
-
-        websocket.current.onmessage = (message) => {
-            const dataFromServer = JSON.parse(message.data);
-            console.log("got reply: ");
-            console.log(dataFromServer);
-            if (dataFromServer.type === "LEDStatus") {
-                setLED(dataFromServer.LEDStatus);
-            }
-        }
-        
-        return () => websocket.current.close();
-    }, []);
-
-  useEffect(() => {
-      if (websocket.readyState != WebSocket.OPEN) {
-          console.log("websocket not available");
-      } else {
-          console.log("ws LED message sent");
-          websocket.current.send(
-              JSON.stringify({
-                  type: "LEDStatus",
-                  LED: LED,
-              })
-          );
+    websocket.current = new W3CWebSocket("ws://192.168.4.1/ws");
+    websocket.current.onopen = () => console.log("WebSocket opened");
+    websocket.current.onclose = () => console.log("Websocket closed")
+    websocket.current.onmessage = (message) => {
+      const dataFromServer = JSON.parse(message.data);
+      console.log("got reply: ");
+      console.log(dataFromServer);
+      if (dataFromServer.type === "LEDStatus") {
+          setLED(dataFromServer.LEDStatus);
       }
-      console.log(
-          JSON.stringify({
-              type: "LEDControl",
-              LED: LED,
-          })
+    }
+    return () => websocket.current.close();
+  }, []);
+
+  // Message sending handlers
+  // TODO. Add all the other states. Need JSON format for that
+  useEffect(() => {
+    if (websocket.readyState != WebSocket.OPEN) {
+      console.log("websocket not available");
+    } else {
+      console.log("ws LED message sent");
+      websocket.current.send(
+        JSON.stringify({
+          type: "LEDStatus",
+          LED: LED,
+        })
       );
+    }
+    console.log(
+        JSON.stringify({
+        type: "LEDControl",
+        LED: LED,
+      })
+    );
+    if(plants.length > 0) {
+      console.log(JSON.stringify(
+        plants[0]
+      ));
+    }
   }, [LED]);
 
   // UI Handlers
@@ -206,6 +274,21 @@ function App() {
     setSelectedIndex(index);
   };
 
+  const handleClickOpen = () => {
+    setPlantOpen(true);
+  };
+
+  const handleClose = (value) => {
+    setPlantOpen(false);
+    setSelectedValue(value);
+    setPlants([...plants, value]);
+  };
+
+  const removePlant = (plant) => {
+    setPlants(plants.filter(item => item.Name !== plant.Name));
+  };
+
+  // UI
   return (
     <ThemeProvider theme={theme}>
       <Box sx={{ display: "flex" }}>
@@ -283,7 +366,32 @@ function App() {
               <ListItemText primary="Schedules" />
             </ListItemButton>
             <Divider sx={{ my: 1 }} />
-            {/* Plant Adding */}
+            {/* Make it so ids are different */}
+            {plants.map((plant) => (
+              <ListItemButton onClick={() => removePlant(plant)} key={plant.Name}>
+                <ListItemIcon>
+                  <Delete/>
+                </ListItemIcon>
+                <ListItemText primary={plant.Name} />
+              </ListItemButton>
+            ))}
+            {plants.length < plantAmount &&
+              <React.Fragment>
+                <ListItemButton
+                  onClick={handleClickOpen}
+                >
+                <ListItemIcon>
+                  <AddCircle />
+                </ListItemIcon>
+                <ListItemText primary={"Add New"} />
+                </ListItemButton>
+                <AddPlant
+                  selectedValue={selectedValue}
+                  open={plantOpen}
+                  onClose={handleClose}
+                />
+              </React.Fragment>
+            }
           </List>
         </Drawer>
 
