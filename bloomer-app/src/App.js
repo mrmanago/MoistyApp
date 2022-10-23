@@ -16,6 +16,7 @@ import {
   Dialog,
   DialogTitle,
   Divider,
+  FilledInput,
   Grid,
   IconButton,
   List,
@@ -196,6 +197,7 @@ const App = () => {
   // Sunrise and Sunset Time for TUe Campus
   const sunrise = getSunrise(51.447710, 5.485856);
   const sunset = getSunset(51.447710, 5.485856);
+  
 
   // UI useStates
   const [open, setOpen] = useState(true);
@@ -213,12 +215,20 @@ const App = () => {
   const [supplementalEnd, setSupplementalEnd] = useState(dayjs(sunset)); // time to turn on led
 
   const [pump, setPump] = useState(false); // Pump on/off
+  const [pumpSchedule, setPumpSchedule] = useState([]);
+
+  const [fan, setFan] = useState(false);
+  const [autoFan, setAutoFan] = useState(false);
 
   const [temp, setTemp] = useState(0);
+  const [waterLevel, setWaterLevel] = useState(0);
+  const [nutrients, setNutrients] = useState(0);
+  const [humidity, setHumidity] = useState(0);
 
   // Plant
   const [plants, setPlants] = useState([plantList[0]]);
   const [plantAmount, setPlantAmount] = useState(3);
+  const [waterDuration, setWaterDuration] = useState(2);
 
   // Websocket init and client message receiving
   // TODO add all the other states. Need JSON format for that
@@ -254,7 +264,7 @@ const App = () => {
     }
     console.log(
         JSON.stringify({
-        type: "LEDControl",
+        type: "LEDStatus",
         LED: LED,
       })
     );
@@ -264,6 +274,14 @@ const App = () => {
       ));
     }
   }, [LED]);
+
+  useEffect(() => {
+    if (plants.length > 0) {
+      const interval = LEDScheduleEnd.diff(LEDScheduleStart) / 3; //TODO change to lowest tough water
+      setPumpSchedule([LEDScheduleStart, LEDScheduleStart.add(interval), LEDScheduleStart.add(interval).add(interval)]);
+      console.log(pumpSchedule);
+    }
+  }, [plants]);
 
   // UI Handlers
   const toggleDrawer = () => {
@@ -318,7 +336,7 @@ const App = () => {
               noWrap
               sx={{ flexGrow: 1 }}
             >
-              Dashboard
+              Bloomer
             </Typography>
           </Toolbar>
         </AppBar>
@@ -413,45 +431,186 @@ const App = () => {
             <Grid container spacing={3}>
               {/* Monitor Page */}
               {selectedIndex === 0 &&
-                //Temp
-                <Grid item xs={12} md={4} lg={3}>
-                  <Paper
-                    sx={{
-                      p: 2,
-                      display: "flex",
-                      flexDirection: "column",
-                      height: 200,
-                    }}
-                  >
-                    <Typography component="h2" variant="h6" color="primary" gutterBottom>
-                      TEMP: {temp}
-                    </Typography>
-                  </Paper>
-                </Grid>
+                <React.Fragment>
+                  {/* Nutrients */}
+                    <Grid item xs={6} md={3} lg={2}>
+                      <Paper
+                        sx={{
+                          p: 2,
+                          display: "flex",
+                          flexDirection: "column",
+                        }}
+                      >
+                        <Typography component="h2" variant="h6" color="primary" gutterBottom>
+                          Nutrients
+                        </Typography>
+                        <Typography component="h2" variant="h6" color="primary" gutterBottom>
+                          {nutrients}
+                        </Typography>
+                      </Paper>
+                    </Grid>
+                  {/* Water Level */}
+                    <Grid item xs={6} md={3} lg={2}>
+                      <Paper
+                        sx={{
+                          p: 2,
+                          display: "flex",
+                          flexDirection: "column",
+                        }}
+                      >
+                        <Typography component="h2" variant="h6" color="primary" gutterBottom>
+                          Water Level
+                        </Typography>
+                        <Typography component="h2" variant="h6" color="primary" gutterBottom>
+                          {waterLevel}
+                        </Typography>
+                      </Paper>
+                    </Grid>
+                  {/* Humidity */}
+                    <Grid item xs={6} md={3} lg={2}>
+                      <Paper
+                        sx={{
+                          p: 2,
+                          display: "flex",
+                          flexDirection: "column",
+                        }}
+                      >
+                        <Typography component="h2" variant="h6" color="primary" gutterBottom>
+                          Humidity
+                        </Typography>
+                        <Typography component="h2" variant="h6" color="primary" gutterBottom>
+                          {humidity}
+                        </Typography>
+                      </Paper>
+                    </Grid>
+                  {/* LED Status */}
+                    <Grid item xs={6} md={3} lg={2}>
+                      <Paper
+                        sx={{
+                          p: 2,
+                          display: "flex",
+                          flexDirection: "column",
+                        }}
+                      >
+                        <Typography component="h2" variant="h6" color="primary" gutterBottom>
+                          LED
+                        </Typography>
+                        <Typography component="h2" variant="h6" color="primary" gutterBottom>
+                          { LED ? "ON" : "OFF"}
+                        </Typography>
+                      </Paper>
+                    </Grid>
+                  {/* Pump Status */}
+                    <Grid item xs={6} md={3} lg={2}>
+                      <Paper
+                        sx={{
+                          p: 2,
+                          display: "flex",
+                          flexDirection: "column",
+                        }}
+                      >
+                        <Typography component="h2" variant="h6" color="primary" gutterBottom>
+                          Pump
+                        </Typography>
+                        <Typography component="h2" variant="h6" color="primary" gutterBottom>
+                          { pump ? "ON" : "OFF" }
+                        </Typography>
+                      </Paper>
+                    </Grid>
+                  {/* Fan Status */}
+                    <Grid item xs={6} md={3} lg={2}>
+                      <Paper
+                        sx={{
+                          p: 2,
+                          display: "flex",
+                          flexDirection: "column",
+                        }}
+                      >
+                        <Typography component="h2" variant="h6" color="primary" gutterBottom>
+                          Fan
+                        </Typography>
+                        <Typography component="h2" variant="h6" color="primary" gutterBottom>
+                          {fan ? "ON" : "OFF"}
+                        </Typography>
+                      </Paper>
+                    </Grid>
+                  {/* Temp */}
+                  <Grid item xs={6} md={3} lg={2}>
+                    <Paper
+                      sx={{
+                        p: 2,
+                        display: "flex",
+                        flexDirection: "column",
+                      }}
+                    >
+                      <Typography component="h2" variant="h6" color="primary" gutterBottom>
+                        Temperature:
+                      </Typography>
+                      <Typography component="h2" variant="h6" color="primary" gutterBottom>
+                        {temp}
+                      </Typography>
+                    </Paper>
+                  </Grid>
+                </React.Fragment>
               }
               
               {/* Control Page */}
               {selectedIndex === 1 &&
-                // LED
-                <Grid item xs={12} md={4} lg={3}>
-                  <Paper
-                    sx={{
-                      p: 2,
-                      display: "flex",
-                      flexDirection: "column",
-                      height: 200,
-                    }}
-                  >
-                    {/* LED CONTROL */}
-                    <Typography component="h2" variant="h6" color="primary" gutterBottom>
-                    LED
-                    </Typography>
+                <React.Fragment>
+                  {/* PUMP CONTROL */}
+                  <Grid item xs={12} md={4} lg={3}>
+                    <Paper
+                      sx={{
+                        p: 2,
+                        display: "flex",
+                        flexDirection: "column",
+                      }}
+                    >
+                      <Typography component="h2" variant="h6" color="primary" gutterBottom>
+                      Pump
+                      </Typography>
+                      <Button variant="contained" onClick={() => setPump(!pump)}>
+                          {pump ? "ON" : "OFF"}
+                      </Button>
+                    </Paper>
+                  </Grid>
 
-                    <Button variant="contained" onClick={() => setLED(!LED)}>
-                        {LED ? "ON" : "OFF"}
-                    </Button>
-                  </Paper>
-                </Grid>
+                  {/* LED CONTROL */}
+                  <Grid item xs={12} md={4} lg={3}>
+                    <Paper
+                      sx={{
+                        p: 2,
+                        display: "flex",
+                        flexDirection: "column",
+                      }}
+                    >
+                      <Typography component="h2" variant="h6" color="primary" gutterBottom>
+                      LED
+                      </Typography>
+                      <Button variant="contained" onClick={() => setLED(!LED)}>
+                          {LED ? "ON" : "OFF"}
+                      </Button>
+                    </Paper>
+                  </Grid>
+
+                  {/* PUMP CONTROL */}
+                  <Grid item xs={12} md={4} lg={3}>
+                    <Paper
+                      sx={{
+                        p: 2,
+                        display: "flex",
+                        flexDirection: "column",
+                      }}
+                    >
+                      <Typography component="h2" variant="h6" color="primary" gutterBottom>
+                      Fan
+                      </Typography>
+                      <Button variant="contained" onClick={() => setFan(!fan)}>
+                          {fan ? "ON" : "OFF"}
+                      </Button>
+                    </Paper>
+                  </Grid>
+                </React.Fragment>
               }
 
               {/* Schedule Page */}
@@ -459,120 +618,170 @@ const App = () => {
                 // Water pump schedule
                 <React.Fragment>
                   <Grid item xs={12} md={6} lg={6}>
-                  <Paper
-                    sx={{
-                      p: 2,
-                      display: "flex",
-                      flexDirection: "column",
-                      height: 200,
-                    }}
-                  >
-                    <Typography component="h2" variant="h6" color="primary" gutterBottom>
-                      Water Pump
-                    </Typography>
-                  </Paper>
-                </Grid>
-                {/* LED schedule */}
-                <Grid item xs={12} md={6} lg={6}>
-                  <Paper
-                    sx={{
-                      p: 2,
-                      display: "flex",
-                      flexDirection: "column",
-                      height: 500,
-                    }}
-                  >
-                    <Typography component="h2" variant="h5" color="primary" gutterBottom>
-                      LED Schedule
-                    </Typography>
-                    {/* On/Off */}
-                    <Button variant="contained" onClick={() => setLEDSchedule(!LEDSchedule)}>
-                      {LEDSchedule ? "ON" : "OFF"}
-                    </Button>
-                    {/* Scheulde On/Off */}
-                    <ButtonGroup disabled={!LEDSchedule}>
-                      <Button
-                        variant={supplemental ? "outlined" : "contained"}
-                        onClick={() => setSupplemental(false)}
-                      >
-                        Complete Care
-                      </Button>
-                      <Button
-                        variant={supplemental ? "contained" : "outlined"}
-                        onClick={() => setSupplemental(true)}
-                      >
-                        Supplemental Care
-                      </Button>
-                    </ButtonGroup>
-                    
-                    {/* Time Pickers TODO looked diabled when schedule not activated */}
-                    <Typography component="h4" variant="h6" color="primary" gutterBottom>
-                      LED Turn On
-                    </Typography>
-
-                    <LocalizationProvider dateAdapter={AdapterDayjs}>
-                      <TimePicker
-                        label="Start Time"
-                        value={LEDScheduleStart}
+                    <Paper
+                      sx={{
+                        p: 2,
+                        display: "flex",
+                        flexDirection: "column",
+                      }}
+                    >
+                      <Typography component="h2" variant="h6" color="primary" gutterBottom>
+                        Water Pump Schedule
+                      </Typography>
+                      <Typography component="h2" variant="h6" color="primary" gutterBottom>
+                        Water Pump Duration
+                      </Typography>
+                      <TextField
+                        label = "Time"
+                        defaultValue = {waterDuration}
                         onChange={(newValue) => {
-                          setLEDScheduleStart(newValue);
+                          setWaterDuration(newValue);
+                        }}
+                      />
+                      {pumpSchedule.map((time, index) => (
+                        <LocalizationProvider dateAdapter={AdapterDayjs} key={index}>
+                          <Typography>
+                          {index + 1}
+                          </Typography>
+                          <TimePicker
+                            label="Start Time"
+                            value={time}
+                            onChange={(newValue) => {
+                              const updatedSchedule = [...pumpSchedule];
+                              updatedSchedule[index] = newValue;
+                              setPumpSchedule(updatedSchedule);
+                            }}
+                            renderInput={(params) => <TextField {...params} />}
+                          />
+                          <TimePicker
+                            label="End Time"
+                            value={time.add(waterDuration, "hour")}
+                            onChange={(newValue) => {
+                              const updatedSchedule = [...pumpSchedule];
+                              updatedSchedule[index] = newValue;
+                              setPumpSchedule(updatedSchedule);
+                            }}
+                            renderInput={(params) => <TextField {...params} />}
+                          />
+                        </LocalizationProvider>
+                      ))}
+                    </Paper>
+                  </Grid>
+
+                  {/* LED schedule */}
+                  <Grid item xs={12} md={6} lg={6}>
+                    <Paper
+                      sx={{
+                        p: 2,
+                        display: "flex",
+                        flexDirection: "column",
+                      }}
+                    >
+                      <Typography component="h2" variant="h5" color="primary" gutterBottom>
+                        LED Schedule
+                      </Typography>
+                      {/* On/Off */}
+                      <Button variant="contained" onClick={() => setLEDSchedule(!LEDSchedule)}>
+                        {LEDSchedule ? "ON" : "OFF"}
+                      </Button>
+                      {/* Scheulde On/Off */}
+                      <ButtonGroup disabled={!LEDSchedule}>
+                        <Button
+                          variant={supplemental ? "outlined" : "contained"}
+                          onClick={() => setSupplemental(false)}
+                        >
+                          Complete Care
+                        </Button>
+                        <Button
+                          variant={supplemental ? "contained" : "outlined"}
+                          onClick={() => setSupplemental(true)}
+                        >
+                          Supplemental Care
+                        </Button>
+                      </ButtonGroup>                    
+                      {/* Time Pickers TODO looked diabled when schedule not activated */}
+                      <Typography component="h4" variant="h6" color="primary" gutterBottom>
+                        LED Turn On
+                      </Typography>
+                      <LocalizationProvider dateAdapter={AdapterDayjs}>
+                        <TimePicker
+                          label="Start Time"
+                          value={LEDScheduleStart}
+                          onChange={(newValue) => {
+                            setLEDScheduleStart(newValue);
+                          }}
+                          renderInput={(params) => <TextField {...params} />}
+                        />
+                      </LocalizationProvider>
+                      {/* Supplemental Time Picker. Appears when it is chosen. */}
+                      { supplemental &&
+                        <React.Fragment>
+                          <Typography component="h4" variant="h6" color="primary" gutterBottom>
+                            LED Turn Off
+                          </Typography>
+                          <LocalizationProvider dateAdapter={AdapterDayjs}>
+                            <TimePicker
+                              label="Turn Off LED"
+                              value={supplementalStart}
+                              onChange={(newValue) => {
+                                setSupplementalStart(newValue);
+                              }}
+                              renderInput={(params) => <TextField {...params} />}
+                            />
+                          </LocalizationProvider>
+
+                          <Typography component="h4" variant="h6" color="primary" gutterBottom>
+                            LED Turn On
+                          </Typography>
+                          <LocalizationProvider dateAdapter={AdapterDayjs}>
+                            <TimePicker
+                              label="Turn LED Back On"
+                              value={supplementalEnd}
+                              onChange={(newValue) => {
+                                setSupplementalEnd(newValue);
+                              }}
+                              renderInput={(params) => <TextField {...params} />}
+                            />
+                          </LocalizationProvider>
+                        </React.Fragment>
+                      }
+
+                      <Typography component="h4" variant="h6" color="primary" gutterBottom>
+                        LED Turn Off
+                      </Typography>
+
+                      <LocalizationProvider dateAdapter={AdapterDayjs}>
+                        <TimePicker
+                        label="End Time"
+                        value={LEDScheduleEnd}
+                        onChange={(newValue) => {
+                            setLEDScheduleEnd(newValue);
                         }}
                         renderInput={(params) => <TextField {...params} />}
                       />
-                    </LocalizationProvider>
-
-                    {/* Supplemental Time Picker. Appears when it is chosen. */}
-                    { supplemental &&
-                      <React.Fragment>
-                        <Typography component="h4" variant="h6" color="primary" gutterBottom>
-                          LED Turn Off
-                        </Typography>
-                        <LocalizationProvider dateAdapter={AdapterDayjs}>
-                          <TimePicker
-                            label="Turn Off LED"
-                            value={supplementalStart}
-                            onChange={(newValue) => {
-                              setSupplementalStart(newValue);
-                            }}
-                            renderInput={(params) => <TextField {...params} />}
-                          />
-                        </LocalizationProvider>
-
-                        <Typography component="h4" variant="h6" color="primary" gutterBottom>
-                          LED Turn On
-                        </Typography>
-                        <LocalizationProvider dateAdapter={AdapterDayjs}>
-                          <TimePicker
-                            label="Turn LED Back On"
-                            value={supplementalEnd}
-                            onChange={(newValue) => {
-                              setLEDScheduleEnd(newValue);
-                            }}
-                            renderInput={(params) => <TextField {...params} />}
-                          />
-                        </LocalizationProvider>
-                      </React.Fragment>
-                    }
-
-                    <Typography component="h4" variant="h6" color="primary" gutterBottom>
-                      LED Turn Off
-                    </Typography>
-
-                    <LocalizationProvider dateAdapter={AdapterDayjs}>
-                      <TimePicker
-                      label="End Time"
-                      value={LEDScheduleEnd}
-                      onChange={(newValue) => {
-                          setLEDScheduleEnd(newValue);
-                      }}
-                      renderInput={(params) => <TextField {...params} />}
-                    />
-                    </LocalizationProvider>
+                      </LocalizationProvider>
                   </Paper>
-                </Grid>
+                  </Grid>
+
+                  {/* Auto Fan Option */}
+                  <Grid item xs={12} md={6} lg={6}>
+                    <Paper
+                      sx={{
+                        p: 2,
+                        display: "flex",
+                        flexDirection: "column",
+                      }}
+                    >
+                      <Typography component="h2" variant="h6" color="primary" gutterBottom>
+                        Automatically Turn On Fan
+                      </Typography>
+                      <Button variant="contained" onClick={() => setAutoFan(!autoFan)}>
+                          {autoFan ? "ON" : "OFF"}
+                      </Button>
+                    </Paper>
+                  </Grid>
                 </React.Fragment>
               }
-
             </Grid>
           </Container>
         </Box>
