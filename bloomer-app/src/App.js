@@ -9,6 +9,7 @@ import { styled, createTheme, ThemeProvider } from "@mui/material/styles";
 import {
   Box,
   Button,
+  ButtonGroup,
   Container,
   CssBaseline,
   Divider,
@@ -349,7 +350,7 @@ function App() {
               {selectedIndex === 2 &&
                 // Water pump schedule
                 <React.Fragment>
-                  <Grid item xs={12} md={4} lg={3}>
+                  <Grid item xs={12} md={6} lg={6}>
                   <Paper
                     sx={{
                       p: 2,
@@ -364,18 +365,101 @@ function App() {
                   </Paper>
                 </Grid>
                 {/* LED schedule */}
-                <Grid item xs={12} md={4} lg={3}>
+                <Grid item xs={12} md={6} lg={6}>
                   <Paper
                     sx={{
                       p: 2,
                       display: "flex",
                       flexDirection: "column",
-                      height: 200,
+                      height: 500,
                     }}
                   >
-                    <Typography component="h2" variant="h6" color="primary" gutterBottom>
-                      Water Pump
+                    <Typography component="h2" variant="h5" color="primary" gutterBottom>
+                      LED Schedule
                     </Typography>
+                    {/* On/Off */}
+                    <Button variant="contained" onClick={() => setLEDSchedule(!LEDSchedule)}>
+                      {LEDSchedule ? "ON" : "OFF"}
+                    </Button>
+                    {/* Scheulde On/Off */}
+                    <ButtonGroup disabled={!LEDSchedule}>
+                      <Button
+                        variant={supplemental ? "outlined" : "contained"}
+                        onClick={() => setSupplemental(false)}
+                      >
+                        Complete Care
+                      </Button>
+                      <Button
+                        variant={supplemental ? "contained" : "outlined"}
+                        onClick={() => setSupplemental(true)}
+                      >
+                        Supplemental Care
+                      </Button>
+                    </ButtonGroup>
+                    
+                    {/* Time Pickers TODO looked diabled when schedule not activated */}
+                    <Typography component="h4" variant="h6" color="primary" gutterBottom>
+                      LED Turn On
+                    </Typography>
+
+                    <LocalizationProvider dateAdapter={AdapterDayjs}>
+                      <TimePicker
+                        label="Start Time"
+                        value={LEDScheduleStart}
+                        onChange={(newValue) => {
+                          setLEDScheduleStart(newValue);
+                        }}
+                        renderInput={(params) => <TextField {...params} />}
+                      />
+                    </LocalizationProvider>
+
+                    {/* Supplemental Time Picker. Appears when it is chosen. */}
+                    { supplemental &&
+                      <React.Fragment>
+                        <Typography component="h4" variant="h6" color="primary" gutterBottom>
+                          LED Turn Off
+                        </Typography>
+                        <LocalizationProvider dateAdapter={AdapterDayjs}>
+                          <TimePicker
+                            label="Turn Off LED"
+                            value={supplementalStart}
+                            onChange={(newValue) => {
+                              setSupplementalStart(newValue);
+                            }}
+                            renderInput={(params) => <TextField {...params} />}
+                          />
+                        </LocalizationProvider>
+
+                        <Typography component="h4" variant="h6" color="primary" gutterBottom>
+                          LED Turn On
+                        </Typography>
+                        <LocalizationProvider dateAdapter={AdapterDayjs}>
+                          <TimePicker
+                            label="Turn LED Back On"
+                            value={supplementalEnd}
+                            onChange={(newValue) => {
+                              setLEDScheduleEnd(newValue);
+                            }}
+                            renderInput={(params) => <TextField {...params} />}
+                          />
+                        </LocalizationProvider>
+                      </React.Fragment>
+                    }
+
+                    <Typography component="h4" variant="h6" color="primary" gutterBottom>
+                      LED Turn Off
+                    </Typography>
+
+                    <LocalizationProvider dateAdapter={AdapterDayjs}>
+                      <TimePicker
+                      label="End Time"
+                      value={LEDScheduleEnd}
+                      onChange={(newValue) => {
+                          setLEDScheduleEnd(newValue);
+                      }}
+                      renderInput={(params) => <TextField {...params} />}
+                    />
+                    </LocalizationProvider>
                   </Paper>
                 </Grid>
                 </React.Fragment>
