@@ -160,7 +160,7 @@ function App() {
   // Websocket and message handlers
   const websocket = useRef(null);
   useEffect(() => {
-        websocket.current = new W3CWebSocket("ws:/192.168.2.1/ws-api/led");
+        websocket.current = new W3CWebSocket("ws://192.168.4.1/ws");
         websocket.current.onopen = () => console.log("WebSocket opened");
         websocket.current.onclose = () => console.log("Websocket closed");
 
@@ -168,8 +168,8 @@ function App() {
             const dataFromServer = JSON.parse(message.data);
             console.log("got reply: ");
             console.log(dataFromServer);
-            if (dataFromServer.type === "LEDControl") {
-                setLED(dataFromServer.LEDControl);
+            if (dataFromServer.type === "LEDStatus") {
+                setLED(dataFromServer.LEDStatus);
             }
         }
         
@@ -183,7 +183,7 @@ function App() {
           console.log("ws LED message sent");
           websocket.current.send(
               JSON.stringify({
-                  type: "LEDControl",
+                  type: "LEDStatus",
                   LED: LED,
               })
           );
