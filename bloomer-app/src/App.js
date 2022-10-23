@@ -19,10 +19,6 @@ import YardIcon from "@mui/icons-material/Yard";
 import { Container } from "@mui/system";
 import Grid from "@mui/material/Grid";
 import Paper from "@mui/material/Paper";
-import Button from "@mui/material/Button";
-
-import {w3cwebsocket as W3CWebSocket} from "websocket";
-import {useState, useEffect, useRef} from 'react';
 
 // MaterialUI
 import { styled, createTheme, ThemeProvider } from "@mui/material/styles";
@@ -238,8 +234,6 @@ function App() {
                   
                 </Paper>
               </Grid>
-              <h1>Currently {LED ? "ON" : "OFF"}</h1>
-              <Button variant="contained" onClick={LED ? LEDoff : LEDon}>{LED ? "Turn Off" : "Turn On"}</Button>
             </Grid>
           </Container>
         </Box>
