@@ -16,7 +16,6 @@ import {
   Dialog,
   DialogTitle,
   Divider,
-  FilledInput,
   Grid,
   IconButton,
   List,
@@ -215,7 +214,9 @@ const App = () => {
   const [supplementalEnd, setSupplementalEnd] = useState(dayjs(sunset)); // time to turn on led
 
   const [pump, setPump] = useState(false); // Pump on/off
-  const [pumpSchedule, setPumpSchedule] = useState([]);
+  const [pumpSchedule, setPumpSchedule] = useState([plantList[0].Pump]);
+  const [waterDuration, setWaterDuration] = useState(2);
+  const [pumpFrequency, setPumpFrequency] = useState(3);
 
   const [fan, setFan] = useState(false);
   const [autoFan, setAutoFan] = useState(false);
@@ -228,7 +229,7 @@ const App = () => {
   // Plant
   const [plants, setPlants] = useState([plantList[0]]);
   const [plantAmount, setPlantAmount] = useState(3);
-  const [waterDuration, setWaterDuration] = useState(2);
+  
 
   // Websocket init and client message receiving
   // TODO add all the other states. Need JSON format for that
@@ -241,9 +242,13 @@ const App = () => {
       const dataFromServer = JSON.parse(message.data);
       console.log("got reply: ");
       console.log(dataFromServer);
+
+      // LED update Status
       if (dataFromServer.type === "LEDStatus") {
           setLED(dataFromServer.LEDStatus);
       }
+
+      // TODO: put all sensor status updates
     }
     return () => websocket.current.close();
   }, []);
@@ -593,7 +598,7 @@ const App = () => {
                     </Paper>
                   </Grid>
 
-                  {/* PUMP CONTROL */}
+                  {/* FAN CONTROL */}
                   <Grid item xs={12} md={4} lg={3}>
                     <Paper
                       sx={{
@@ -626,9 +631,6 @@ const App = () => {
                       }}
                     >
                       <Typography component="h2" variant="h6" color="primary" gutterBottom>
-                        Water Pump Schedule
-                      </Typography>
-                      <Typography component="h2" variant="h6" color="primary" gutterBottom>
                         Water Pump Duration
                       </Typography>
                       <TextField
@@ -638,6 +640,9 @@ const App = () => {
                           setWaterDuration(newValue);
                         }}
                       />
+                      <Typography component="h2" variant="h6" color="primary" gutterBottom>
+                        Water Pump Schedule
+                      </Typography>
                       {pumpSchedule.map((time, index) => (
                         <LocalizationProvider dateAdapter={AdapterDayjs} key={index}>
                           <Typography>
