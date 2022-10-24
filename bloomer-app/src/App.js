@@ -203,6 +203,7 @@ const App = () => {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [plantOpen, setPlantOpen] = useState(false);
   const [selectedValue, setSelectedValue] = useState(plantList[0].Name);
+  const [camera, setCamera] = useState(false); // Camera on and off
 
   // Websocket Message useStates
   const [LED, setLED] = useState(false); // LED on/off
@@ -257,7 +258,7 @@ const App = () => {
   // TODO. Add all the other states. Need JSON format for that
   useEffect(() => {
     if (websocket.readyState != WebSocket.OPEN) {
-      console.log("websocket not available");
+      console.log("websocket not available for LED");
     } else {
       console.log("ws LED message sent");
       websocket.current.send(
@@ -279,6 +280,21 @@ const App = () => {
       ));
     }
   }, [LED]);
+
+  useEffect(() => {
+    if (websocket.readyState != WebSocket.OPEN) {
+      console.log("websocket not available for camera");
+    } else {
+      console.log("ws camera message sent");
+      websocket.current.send(JSON.stringify({
+          type: "Camera",
+        }));
+    }
+
+    console.log(JSON.stringify({
+      type: "Camera",
+    }))
+  }, [camera]);
 
   useEffect(() => {
     if (plants.length > 0) {
@@ -554,6 +570,24 @@ const App = () => {
                       <Typography component="h2" variant="h6" color="primary" gutterBottom>
                         {temp}
                       </Typography>
+                    </Paper>
+                  </Grid>
+
+                  {/* Camera */}
+                  <Grid item xs={12} md={12} lg={12}>
+                    <Paper
+                      sx={{
+                        p: 2,
+                        display: "flex",
+                        flexDirection: "column",
+                      }}
+                    >
+                      <Typography component="h2" variant="h6" color="primary" gutterBottom>
+                        Camera
+                      </Typography>
+                      <Button variant={camera ? "contained" : "outlined"} onClick={() => setCamera(!camera)}>
+                        {camera ? "ON" : "OFF"}
+                      </Button>
                     </Paper>
                   </Grid>
                 </React.Fragment>
