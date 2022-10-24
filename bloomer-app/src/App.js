@@ -257,7 +257,7 @@ const App = () => {
   // Message sending handlers
   // TODO. Add all the other states. Need JSON format for that
   useEffect(() => {
-    if (websocket.readyState != WebSocket.OPEN) {
+    if (websocket.readyState !== WebSocket.OPEN) {
       console.log("websocket not available for LED");
     } else {
       console.log("ws LED message sent");
@@ -282,7 +282,7 @@ const App = () => {
   }, [LED]);
 
   useEffect(() => {
-    if (websocket.readyState != WebSocket.OPEN) {
+    if (websocket.readyState !== WebSocket.OPEN) {
       console.log("websocket not available for camera");
     } else {
       console.log("ws camera message sent");
@@ -588,6 +588,12 @@ const App = () => {
                       <Button variant={camera ? "contained" : "outlined"} onClick={() => setCamera(!camera)}>
                         {camera ? "ON" : "OFF"}
                       </Button>
+                      {/* Camera Feed. put camera feed below this box. */}
+                      { camera &&
+                        <Typography component="h2" variant="h6" color="primary" gutterBottom>
+                        Live Camera Feed
+                        </Typography>
+                      }
                     </Paper>
                   </Grid>
                 </React.Fragment>
