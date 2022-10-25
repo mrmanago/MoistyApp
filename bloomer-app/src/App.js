@@ -263,6 +263,7 @@ const App = () => {
       }
 
       // Sensor messages
+      // Temperature
       if (dataFromServer.type === "TempStatus") {
         setTemp(dataFromServer.temp);
       }
@@ -283,9 +284,8 @@ const App = () => {
   }, []);
 
   // Message sending handlers
-  // TODO. Add all the other states. Need JSON format for that
   useEffect(() => {
-    if (websocket.readyState !== WebSocket.OPEN) {
+    if (websocket.current.readyState !== WebSocket.OPEN) {
       console.log("websocket not available for LED");
     } else {
       console.log("ws LED message sent");
@@ -305,7 +305,7 @@ const App = () => {
   }, [LED]);
 
   useEffect(() => {
-    if (websocket.readyState !== WebSocket.OPEN) {
+    if (websocket.current.readyState !== WebSocket.OPEN) {
       console.log("websocket not available for Pump");
     } else {
       console.log("ws Pump message sent");
@@ -325,7 +325,7 @@ const App = () => {
   }, [pump]);
 
   useEffect(() => {
-    if (websocket.readyState !== WebSocket.OPEN) {
+    if (websocket.current.readyState !== WebSocket.OPEN) {
       console.log("websocket not available for Fan");
     } else {
       console.log("ws Fan message sent");
@@ -345,7 +345,7 @@ const App = () => {
   }, [fan]);
 
   useEffect(() => {
-    if (websocket.readyState !== WebSocket.OPEN) {
+    if (websocket.current.readyState !== WebSocket.OPEN) {
       console.log("websocket not available for camera");
     } else {
       console.log("ws camera message sent");
