@@ -334,6 +334,7 @@ const App = () => {
       console.log("ws camera message sent");
       websocket.current.send(JSON.stringify({
           type: "Camera",
+          camera: camera,
         }));
     }
 
