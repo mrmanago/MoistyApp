@@ -244,6 +244,7 @@ const App = () => {
       console.log("got reply: ");
       console.log(dataFromServer);
 
+      // Control Websocket
       // LED update Status
       if (dataFromServer.type === "LEDStatus") {
           setLED(dataFromServer.LEDStatus);
@@ -260,7 +261,23 @@ const App = () => {
       if (dataFromServer.type === "Camera") {
         setCamera(dataFromServer.camera);
       }
-      // TODO: put all sensor status updates
+
+      // Sensor messages
+      if (dataFromServer.type === "TempStatus") {
+        setTemp(dataFromServer.temp);
+      }
+      // Humidity
+      if (dataFromServer.type === "HumidityStatus") {
+        setHumidity(dataFromServer.humidity);
+      }
+      // Nutrients
+      if (dataFromServer.type === "NutrientsStatus") {
+        setNutrients(dataFromServer.nutrients);
+      }
+      // Water Level
+      if (dataFromServer.type === "WaterStatus") {
+        setWaterLevel(dataFromServer.waterLevel);
+      }
     }
     return () => websocket.current.close();
   }, []);
