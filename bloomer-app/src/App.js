@@ -248,7 +248,18 @@ const App = () => {
       if (dataFromServer.type === "LEDStatus") {
           setLED(dataFromServer.LEDStatus);
       }
-
+      // Pump update Status
+      if (dataFromServer.type === "PumpStatus") {
+        setPump(dataFromServer.PumpStatus);
+      }
+      // Fan update Status
+      if (dataFromServer.type === "FanStatus") {
+        setFan(dataFromServer.fan);
+      }
+      // Camera update Status
+      if (dataFromServer.type === "Camera") {
+        setCamera(dataFromServer.camera);
+      }
       // TODO: put all sensor status updates
     }
     return () => websocket.current.close();
@@ -274,12 +285,47 @@ const App = () => {
         LED: LED,
       })
     );
-    if(plants.length > 0) {
-      console.log(JSON.stringify(
-        plants[0]
-      ));
-    }
   }, [LED]);
+
+  useEffect(() => {
+    if (websocket.readyState !== WebSocket.OPEN) {
+      console.log("websocket not available for Pump");
+    } else {
+      console.log("ws Pump message sent");
+      websocket.current.send(
+        JSON.stringify({
+          type: "PumpStatus",
+          pump: pump,
+        })
+      );
+    }
+    console.log(
+        JSON.stringify({
+        type: "PumpStatus",
+        pump: pump,
+      })
+    );
+  }, [pump]);
+
+  useEffect(() => {
+    if (websocket.readyState !== WebSocket.OPEN) {
+      console.log("websocket not available for Fan");
+    } else {
+      console.log("ws Fan message sent");
+      websocket.current.send(
+        JSON.stringify({
+          type: "FanStatus",
+          fan: fan,
+        })
+      );
+    }
+    console.log(
+        JSON.stringify({
+        type: "FanStatus",
+        fan: fan,
+      })
+    );
+  }, [fan]);
 
   useEffect(() => {
     if (websocket.readyState !== WebSocket.OPEN) {
@@ -293,6 +339,7 @@ const App = () => {
 
     console.log(JSON.stringify({
       type: "Camera",
+      camera: camera,
     }))
   }, [camera]);
 
