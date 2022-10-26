@@ -30,7 +30,7 @@ def get_file_type(filename):
     elif file_ending == "html":
         return "text/html"
     elif file_ending == "ico":
-        return "text/ico"
+        return "image/icon"
     else:
         return "text/plain"
 

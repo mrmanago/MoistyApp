@@ -9,7 +9,7 @@
 
 /*! ===== DEBUG Settings ===== */
 #define ENABLE_DEBUG 1
-#define DEBUG_LED 2
+#define DEBUG_LED 19
 #define DEBUG_PORT Serial
 #define DEBUG_BAUD 115200
 
@@ -26,8 +26,10 @@
 #define NETWORK_PASSWORD ""
 
 /*! ===== Temperature Settings ===== */
-#define TARGET_TEMP 25
+
+#define WATER_TEMP 25
 #define APIKEY 
+#define TARGET_TEMP 25
 #define TEMP1PIN 32
 #define TEMP2PIN 35
 
@@ -38,6 +40,15 @@
 /*! ===== Button Settings ===== */
 #define BUTTON1PIN 23
 #define BUTTON2PIN 18
+
+
+#define FAN 5
+#define PUMP 23
+
+/*! ==== EC ====*/
+
+#define ECIN 2
+#define ECOUT 36
 
 // /*! ===== Battery Settings ===== */
 // #define CELLONE 34

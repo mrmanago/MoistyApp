@@ -10,6 +10,10 @@
 #include <ArduinoOTA.h>
 #include <AsyncTCP.h>
 #include <ESPAsyncWebServer.h>
+#include <ArduinoJson.h>
+#include <typeinfo>
+
+#include "AsyncJson.h"
 
 #include "config.h"
 #include "debug.h"
@@ -25,6 +29,7 @@ void reply(AsyncWebServerRequest* request, int code, const char* type, const uin
     response->addHeader("Content-Encoding", "gzip");
     request->send(response);
 }
+
 
 namespace webserver {
     // ===== PRIVATE ===== //
@@ -59,17 +64,39 @@ namespace webserver {
             AwsFrameInfo* info = (AwsFrameInfo*)arg;
 
             if (info->opcode == WS_TEXT) {
-                char* msg = (char*)data;
-                msg[len] = 0;
+                char* json = (char*)data;
+                //char* msg = (char*)data;
+                // json[len] = 0;
+                DynamicJsonDocument doc(1024);
+                deserializeJson(doc, json);
 
-                debugf("Message from %u [%llu byte]=%s", client->id(), info->len, msg);
+                const char* type = doc["type"];
 
-                currentClient = client;
-                cli::parse(msg, [](const char* str) {
-                    webserver::send(str);
-                    debugf("%s\n", str);
-                }, false);
-                currentClient = nullptr;
+
+
+                if (strcmp(type,"LEDStatus") == 0) {
+                    bool ledStat = doc["LED"];
+                    debugf("turning LEDStatus to ", ledStat);
+                    settings::setLED(ledStat);
+                } else if (strcmp(type,"PumpStatus") == 0) {
+                    bool pumpStat = doc["pump"];
+                    debugf("turning PUMPStatus to ", pumpStat);
+                    settings::setPUMP(pumpStat);
+                } else if (strcmp(type,"FanStatus") == 0) {
+                    bool fanStat = doc["fan"];
+                    debugf("turning FanStatus to ", fanStat);
+                    settings::setFAN(fanStat);
+                }
+                // const bool* LED = doc["LED"];
+
+                debugf("Message from %u [%llu byte]=%s", client->id(), info->len, type);
+
+                // currentClient = client;
+                // cli::parse(json, [](const char* str) {
+                //     webserver::send(str);
+                //     debugf("%s\n", str);
+                // }, false);
+                // currentClient = nullptr;
             }
         }
     }

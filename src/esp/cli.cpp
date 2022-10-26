@@ -156,8 +156,11 @@ namespace cli {
             print(settings::toString());
         });
     }
+
+    
     
     void parse(const char* input, PrintFunction printfunc, bool echo) {
+
             cli::printfunc = printfunc;
             if (echo) {
                   String s = "# " + String(input);

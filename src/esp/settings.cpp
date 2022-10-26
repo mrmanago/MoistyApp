@@ -20,6 +20,7 @@ namespace settings {
     String ssid_sta;
     String password_sta;
     int targetTemp;
+    // bool ledState;
     
     // ===== PUBLIC ====== //
     void begin(bool mode) {
@@ -35,6 +36,7 @@ namespace settings {
       password_sta = preferences.getString("Password_STA", NETWORK_PASSWORD);
       channel = preferences.getString("Channel", WIFI_CHANNEL);
       targetTemp = preferences.getInt("Temperature", TARGET_TEMP);
+      //ledState = preferences.getInt("LED", DEBUG_LED);
     }
 
     void end() {
@@ -50,6 +52,7 @@ namespace settings {
         preferences.putString("Password_STA", NETWORK_PASSWORD);        
         setChannel(WIFI_CHANNEL);
         setTemperature(TARGET_TEMP);
+        //setLED(false);
     }
 
     void save() {
@@ -77,6 +80,9 @@ namespace settings {
         s += "Temperature=";
         s += getTemperature();
         s += "\n";
+        // s += "LED=";
+        // s += getLED();
+        // s += "\n";
 
         return s;
     }
@@ -103,6 +109,9 @@ namespace settings {
         return targetTemp;
     }
 
+    // bool getLED() {
+    //     return ledState;
+    // }
 
 
     int getChannelNum() {
@@ -125,7 +134,9 @@ namespace settings {
             setPassword(value, true);
         } else if (strcmp(name, "targetTemp") == 0) {
             setTemperature(atoi(value));
-        }
+        }  //else if (strcmp(name, "ledState" == 0) {
+        //     setLED(atoi(value));
+        // }
     }
 
     void setSSID(const char* ssid, bool choice) {
@@ -146,6 +157,29 @@ namespace settings {
             preferences.putInt("Temperature", targetTemp);
         }
     }
+
+    void setLED(bool led) {
+        if (led == true) digitalWrite(DEBUG_LED, HIGH);
+        else digitalWrite(DEBUG_LED, LOW);
+    }
+
+    void setFAN(bool fan) {
+        if (fan == true) digitalWrite(FAN, HIGH);
+        else digitalWrite(FAN, LOW);
+    }
+
+    void setPUMP(bool pump) {
+        if (pump == true) digitalWrite(PUMP, HIGH);
+        else digitalWrite(PUMP, LOW);
+    }
+    
+    // void setLED(int led) {
+    //     if (ledState != led) {
+    //         ledState = led;
+    //         preferences.putBool("LED", ledState);
+    //     }
+        
+    // }
 
     void setPassword(const char* password, bool choice) {
         if (password && (strlen(password) >= 8) && (strlen(password) <= 65)) {

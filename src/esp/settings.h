@@ -29,4 +29,7 @@ namespace settings {
     void setPassword(const char* password, bool choice);
     void setChannel(const char* channel);
     void setTemperature(int temperature);
+    void setLED(bool led);
+    void setPUMP(bool pump);
+    void setFAN(bool fan);
 }
