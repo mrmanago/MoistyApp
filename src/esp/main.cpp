@@ -32,6 +32,8 @@ void setup() {
 
     pinMode(ECIN, OUTPUT);
     digitalWrite(ECIN,LOW);
+    pinMode(WATER_POWER, OUTPUT);
+    digitalWrite(WATER_POWER, HIGH);
 
 
     pinMode(MOS1PIN, OUTPUT);
@@ -57,7 +59,16 @@ void setup() {
 
 void loop() {
   unsigned long StartTime = millis();
-  //digitalWrite(DEBUG_LED, HIGH);
+  Serial.print("Water temp: ");
+  Serial.println(sensor::readNTC());
+  Serial.print("In voltage: ");
+  Serial.println(analogRead(WATER_TEMP));
+  Serial.print("Temperature: ");
+  Serial.println(sensor::readTempAM2320());
+  Serial.print("Water: ");
+  Serial.println(sensor::readWater());
+  // webserver::sendshit("Suck my dick");
+  delay(500);
   debug_update();
   webserver::update();
 }

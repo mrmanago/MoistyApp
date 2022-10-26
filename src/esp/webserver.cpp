@@ -12,6 +12,7 @@
 #include <ESPAsyncWebServer.h>
 #include <ArduinoJson.h>
 #include <typeinfo>
+#include <iostream>
 
 #include "AsyncJson.h"
 
@@ -19,6 +20,7 @@
 #include "debug.h"
 #include "cli.h"
 #include "settings.h"
+#include "sensor.h"
 
 #include "webfiles.h"
 
@@ -97,8 +99,79 @@ namespace webserver {
                 //     debugf("%s\n", str);
                 // }, false);
                 // currentClient = nullptr;
+
+
             }
         }
+    }
+
+
+    
+
+    // int kl = sensor::readWater();
+    // std::string testl = std::to_string(kl);
+    // std::string testlk = "{\"type\":\"WaterStatus\",\"waterLevel\": ";
+    // char json[30];
+
+    void cumrag() {
+        DynamicJsonDocument doc(1024);
+        doc["type"] = "WaterStatus";
+        doc["waterLevel"] = sensor::readWater();
+
+        char Serial[1024];
+        serializeJson(doc, Serial);
+        ws.textAll(Serial);
+    }
+
+    void sendTemp() {
+        DynamicJsonDocument doc(1024);
+        doc["type"] = "TempStatus";
+        doc["temp"] = sensor::readTempAM2320();
+
+        char Serial[1024];
+        serializeJson(doc, Serial);
+
+        ws.textAll(Serial);
+    }
+
+    void sendHum() {
+        DynamicJsonDocument doc(1024);
+        doc["type"] = "HumidityStatus";
+        doc["humidity"] = sensor::readHumAM2320();
+
+        char Serial[1024];
+        serializeJson(doc, Serial);
+
+        ws.textAll(Serial);
+    }
+
+    void sendNut() {
+        DynamicJsonDocument doc(1024);
+        doc["type"] = "NutrientsStatus";
+        doc["nutrients"] = sensor::readNTC();
+
+        char Serial[1024];
+        serializeJson(doc, Serial);
+
+        ws.textAll(Serial);
+    }
+
+
+
+    void sendshit() {
+        int k = sensor::readWater();
+        //char json[] = "{\"type\":\"WaterStatus\",\"waterLevel\": ", "555" " }";
+        
+        // std::string testl = std::to_string(kl);
+        // std::string testlk = "{\"type\":\"WaterStatus\",\"waterLevel\": ";
+        // for (int i = 0; i < testlk.size(); i++) {
+        //     json[i] = testlk[i];
+        // }   
+        // for (int i = 0; i < testl.size(); i++) {
+        //     json[testlk.size() + i] = testl[i];
+        // }
+        // json[testlk.size() + testl.size()] = '}';
+        //ws.textAll(json);
     }
 
     // ===== PUBLIC ===== //
@@ -207,6 +280,15 @@ namespace webserver {
         ArduinoOTA.handle();
         if (reboot) ESP.restart();
         dnsServer.processNextRequest();
+        cumdumpster();
+    }
+
+    void cumdumpster() {
+        //cumrag();
+        sendTemp();
+        sendHum();
+        sendNut();
+        delay(500);
     }
 
     void send(const char* str) {

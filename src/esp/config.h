@@ -37,6 +37,9 @@
 #define MOS1PIN 25
 #define MOS2PIN 27
 
+#define WATER_POWER 27
+#define WATER_SENSOR 36
+
 /*! ===== Button Settings ===== */
 #define BUTTON1PIN 23
 #define BUTTON2PIN 18

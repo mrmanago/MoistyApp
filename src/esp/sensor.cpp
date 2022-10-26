@@ -1,17 +1,24 @@
 #include <ArduinoOTA.h>
+#include <Adafruit_Sensor.h>
+#include <Adafruit_AM2320.h>
+#include <ArduinoJson.h>
+#include <typeinfo>
 #include <math.h>
 
 #include "sensor.h"
-#include <Adafruit_Sensor.h>
-#include <Adafruit_AM2320.h>
+
 
 #include "config.h"
+
+Adafruit_AM2320 AM2320 = Adafruit_AM2320();
+
 
 
 namespace sensor {
     double currentReadingOne;
     double currentReadingTwo;
     const int Vin = 4095.0;
+    int water_val;
     double readingSensorOne() {
         double voltage = analogReadMilliVolts(TEMP1PIN);
         currentReadingOne = voltage / 10;
@@ -37,8 +44,18 @@ namespace sensor {
         return round(currentReadingTwo);
     }
 
-    float readAM2320() {
+    float readTempAM2320() {
         return AM2320.readTemperature();
+    }
+    float readHumAM2320() {
+        return AM2320.readHumidity();
+    }
+
+
+    int readWater() {
+        water_val = analogRead(WATER_SENSOR);
+        return(water_val);
+
     }
 
     float readNTC() {
@@ -58,19 +75,19 @@ namespace sensor {
 
     float getEC(){
   
-        digitalWrite(ECin,HIGH);
-        int raw= analogRead(ECout);
+        digitalWrite(ECIN,HIGH);
+        int raw= analogRead(ECOUT);
 
         //For debugging
         Serial.print("Votlage 1 EC:");
         Serial.println(raw);
         
-        raw = analogRead(ECout);// This is not a mistake, First reading will be low beause if charged a capacitor
+        raw = analogRead(ECOUT);// This is not a mistake, First reading will be low beause if charged a capacitor
 
         //For debugging
         Serial.print("Votlage 2 EC:");
         Serial.println(raw);
-        digitalWrite(ECin,LOW);
+        digitalWrite(ECIN,LOW);
             
         //Convert to EC
         float Vdrop = (3.3*raw)/Vin;
