@@ -52,7 +52,7 @@ void setup() {
     webserver::begin();
 
 
-    debug("\n[~~~ Glove v");
+    debug("\n[~~~ Bloomer v");
     debug(VERSION);
     debugln(" Started! ~~~]");
 }
@@ -61,12 +61,14 @@ void loop() {
   unsigned long StartTime = millis();
   Serial.print("Water temp: ");
   Serial.println(sensor::readNTC());
-  Serial.print("In voltage: ");
-  Serial.println(analogRead(WATER_TEMP));
-  Serial.print("Temperature: ");
-  Serial.println(sensor::readTempAM2320());
-  Serial.print("Water: ");
-  Serial.println(sensor::readWater());
+  // Serial.print("Humidity: ");
+  // Serial.println(readHumidity());
+  // Serial.print("Temperature: ");
+  // Serial.println(AM2320.readTemperature());
+  Serial.print("EC: ");
+  Serial.println(sensor::getEC());
+  //Serial.print("Water: ");
+  // Serial.println(sensor::readWater());
   // webserver::sendshit("Suck my dick");
   delay(500);
   debug_update();

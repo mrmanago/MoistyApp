@@ -13,6 +13,8 @@
 #include <ArduinoJson.h>
 #include <typeinfo>
 #include <iostream>
+#include <Adafruit_Sensor.h>
+#include <Adafruit_AM2320.h>
 
 #include "AsyncJson.h"
 
@@ -23,6 +25,8 @@
 #include "sensor.h"
 
 #include "webfiles.h"
+
+Adafruit_AM2320 AM2320 = Adafruit_AM2320();
 
 void reply(AsyncWebServerRequest* request, int code, const char* type, const uint8_t* data, size_t len) {
     AsyncWebServerResponse* response =
@@ -124,9 +128,10 @@ namespace webserver {
     }
 
     void sendTemp() {
+
         DynamicJsonDocument doc(1024);
         doc["type"] = "TempStatus";
-        doc["temp"] = sensor::readTempAM2320();
+        doc["temp"] = AM2320.readHumidity();
 
         char Serial[1024];
         serializeJson(doc, Serial);
@@ -135,9 +140,10 @@ namespace webserver {
     }
 
     void sendHum() {
+        
         DynamicJsonDocument doc(1024);
         doc["type"] = "HumidityStatus";
-        doc["humidity"] = sensor::readHumAM2320();
+        doc["humidity"] = AM2320.readTemperature();
 
         char Serial[1024];
         serializeJson(doc, Serial);
@@ -148,13 +154,26 @@ namespace webserver {
     void sendNut() {
         DynamicJsonDocument doc(1024);
         doc["type"] = "NutrientsStatus";
-        doc["nutrients"] = sensor::readNTC();
+        doc["nutrients"] = sensor::getEC();
 
         char Serial[1024];
         serializeJson(doc, Serial);
 
         ws.textAll(Serial);
     }
+    
+    void sendWaterTemp() {
+        DynamicJsonDocument doc(1024);
+        doc["type"] = "WaterStatus";
+        doc["waterLevel"] = sensor::readNTC();
+
+        char Serial[1024];
+        serializeJson(doc, Serial);
+
+        ws.textAll(Serial);
+    }
+
+    
 
 
 
@@ -276,20 +295,23 @@ namespace webserver {
         debugln("Started Webserver");
     }
 
+    void cumdumpster() {
+        //cumrag();
+        
+        delay(2000);
+    }
+
     void update() {
         ArduinoOTA.handle();
         if (reboot) ESP.restart();
         dnsServer.processNextRequest();
-        cumdumpster();
-    }
-
-    void cumdumpster() {
-        //cumrag();
         sendTemp();
         sendHum();
         sendNut();
-        delay(500);
+        sendWaterTemp();
     }
+
+    
 
     void send(const char* str) {
         if (currentClient) currentClient->text(str);

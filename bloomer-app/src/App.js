@@ -203,7 +203,7 @@ const App = () => {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [plantOpen, setPlantOpen] = useState(false);
   const [selectedValue, setSelectedValue] = useState(plantList[0].Name);
-  const [camera, setCamera] = useState(false); // Camera on and off
+  //const [camera, setCamera] = useState(false); // Camera on and off
 
   // Websocket Message useStates
   const [LED, setLED] = useState(false); // LED on/off
@@ -257,10 +257,10 @@ const App = () => {
       if (dataFromServer.type === "FanStatus") {
         setFan(dataFromServer.fan);
       }
-      // Camera update Status
-      if (dataFromServer.type === "Camera") {
-        setCamera(dataFromServer.camera);
-      }
+      // // Camera update Status
+      // if (dataFromServer.type === "Camera") {
+      //   setCamera(dataFromServer.camera);
+      // }
 
       // Sensor messages
       // Temperature
@@ -344,22 +344,22 @@ const App = () => {
     );
   }, [fan]);
 
-  useEffect(() => {
-    if (websocket.current.readyState !== WebSocket.OPEN) {
-      console.log("websocket not available for camera");
-    } else {
-      console.log("ws camera message sent");
-      websocket.current.send(JSON.stringify({
-          type: "Camera",
-          camera: camera,
-        }));
-    }
+  // useEffect(() => {
+  //   if (websocket.current.readyState !== WebSocket.OPEN) {
+  //     console.log("websocket not available for camera");
+  //   } else {
+  //     console.log("ws camera message sent");
+  //     websocket.current.send(JSON.stringify({
+  //         type: "Camera",
+  //         camera: camera,
+  //       }));
+  //   }
 
-    console.log(JSON.stringify({
-      type: "Camera",
-      camera: camera,
-    }))
-  }, [camera]);
+  //   console.log(JSON.stringify({
+  //     type: "Camera",
+  //     camera: camera,
+  //   }))
+  // }, [camera]);
 
   useEffect(() => {
     if (plants.length > 0) {
@@ -635,30 +635,6 @@ const App = () => {
                       <Typography component="h2" variant="h6" color="primary" gutterBottom>
                         {temp}
                       </Typography>
-                    </Paper>
-                  </Grid>
-
-                  {/* Camera */}
-                  <Grid item xs={12} md={12} lg={12}>
-                    <Paper
-                      sx={{
-                        p: 2,
-                        display: "flex",
-                        flexDirection: "column",
-                      }}
-                    >
-                      <Typography component="h2" variant="h6" color="primary" gutterBottom>
-                        Camera
-                      </Typography>
-                      <Button variant={camera ? "contained" : "outlined"} onClick={() => setCamera(!camera)}>
-                        {camera ? "ON" : "OFF"}
-                      </Button>
-                      {/* Camera Feed. put camera feed below this box. */}
-                      { camera &&
-                        <Typography component="h2" variant="h6" color="primary" gutterBottom>
-                        Live Camera Feed
-                        </Typography>
-                      }
                     </Paper>
                   </Grid>
                 </React.Fragment>

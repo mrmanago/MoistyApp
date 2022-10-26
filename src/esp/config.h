@@ -27,7 +27,7 @@
 
 /*! ===== Temperature Settings ===== */
 
-#define WATER_TEMP 25
+#define WATER_TEMP 39
 #define APIKEY 
 #define TARGET_TEMP 25
 #define TEMP1PIN 32

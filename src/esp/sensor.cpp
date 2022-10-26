@@ -10,7 +10,7 @@
 
 #include "config.h"
 
-Adafruit_AM2320 AM2320 = Adafruit_AM2320();
+
 
 
 
@@ -44,12 +44,12 @@ namespace sensor {
         return round(currentReadingTwo);
     }
 
-    float readTempAM2320() {
-        return AM2320.readTemperature();
-    }
-    float readHumAM2320() {
-        return AM2320.readHumidity();
-    }
+    // float readTempAM2320() {
+    //     return AM2320.readTemperature();
+    // }
+    // float readHumAM2320() {
+    //     return AM2320.readHumidity();
+    // }
 
 
     int readWater() {
@@ -79,26 +79,26 @@ namespace sensor {
         int raw= analogRead(ECOUT);
 
         //For debugging
-        Serial.print("Votlage 1 EC:");
-        Serial.println(raw);
+        // Serial.print("Votlage 1 EC:");
+        // Serial.println(raw);
         
         raw = analogRead(ECOUT);// This is not a mistake, First reading will be low beause if charged a capacitor
 
         //For debugging
-        Serial.print("Votlage 2 EC:");
-        Serial.println(raw);
+        // Serial.print("Votlage 2 EC:");
+        // Serial.println(raw);
         digitalWrite(ECIN,LOW);
             
         //Convert to EC
         float Vdrop = (3.3*raw)/Vin;
         //For debugging
-        Serial.print("Vdrop: ");
-        Serial.println(Vdrop);
+        // Serial.print("Vdrop: ");
+        // Serial.println(Vdrop);
         //Find resistance of water
         int Rc = (Vdrop*1000)/(3.3-Vdrop);
         //For debugging
-        Serial.print("RC: ");
-        Serial.println(Rc);
+        // Serial.print("RC: ");
+        // Serial.println(Rc);
 
         //Cell constant
         //EU plug: K= 1.76
@@ -111,8 +111,8 @@ namespace sensor {
         float EC = 1000/(Rc * K);
 
         //For debugging
-        Serial.print("EC: ");
-        Serial.println(EC);
+        // Serial.print("EC: ");
+        // Serial.println(EC);
         
         
         //*************Compensating For Temperaure********************//
