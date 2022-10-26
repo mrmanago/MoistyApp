@@ -244,6 +244,7 @@ const App = () => {
       console.log("got reply: ");
       console.log(dataFromServer);
 
+      // Control Websocket
       // LED update Status
       if (dataFromServer.type === "LEDStatus") {
           setLED(dataFromServer.LEDStatus);
@@ -260,13 +261,29 @@ const App = () => {
       if (dataFromServer.type === "Camera") {
         setCamera(dataFromServer.camera);
       }
-      // TODO: put all sensor status updates
+
+      // Sensor messages
+      // Temperature
+      if (dataFromServer.type === "TempStatus") {
+        setTemp(dataFromServer.temp);
+      }
+      // Humidity
+      if (dataFromServer.type === "HumidityStatus") {
+        setHumidity(dataFromServer.humidity);
+      }
+      // Nutrients
+      if (dataFromServer.type === "NutrientsStatus") {
+        setNutrients(dataFromServer.nutrients);
+      }
+      // Water Level
+      if (dataFromServer.type === "WaterStatus") {
+        setWaterLevel(dataFromServer.waterLevel);
+      }
     }
     return () => websocket.current.close();
   }, []);
 
   // Message sending handlers
-  // TODO. Add all the other states. Need JSON format for that
   useEffect(() => {
     if (websocket.current.readyState !== WebSocket.OPEN) {
       console.log("websocket not available for LED");
@@ -328,12 +345,13 @@ const App = () => {
   }, [fan]);
 
   useEffect(() => {
-    if (websocket.readyState !== WebSocket.OPEN) {
+    if (websocket.current.readyState !== WebSocket.OPEN) {
       console.log("websocket not available for camera");
     } else {
       console.log("ws camera message sent");
       websocket.current.send(JSON.stringify({
           type: "Camera",
+          camera: camera,
         }));
     }
 
