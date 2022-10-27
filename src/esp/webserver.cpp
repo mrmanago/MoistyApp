@@ -14,8 +14,9 @@
 #include <typeinfo>
 #include <iostream>
 #include <Adafruit_Sensor.h>
-#include <Adafruit_AM2320.h>
+// #include <Adafruit_AM2320.h>
 
+#include "AM2320.h"
 #include "AsyncJson.h"
 
 #include "config.h"
@@ -26,7 +27,7 @@
 
 #include "webfiles.h"
 
-Adafruit_AM2320 AM2320 = Adafruit_AM2320();
+AM2320 sensorth;
 
 void reply(AsyncWebServerRequest* request, int code, const char* type, const uint8_t* data, size_t len) {
     AsyncWebServerResponse* response =
@@ -127,34 +128,46 @@ namespace webserver {
         ws.textAll(Serial);
     }
 
-    void sendTemp() {
+    // float readAMTemp() {
+    //     return AM2320.readTemperature();
+    // }
+    // float readAMHum() {
+    //     return AM2320.readHumidity();
+    // }
 
+    void sendTemp() {
         DynamicJsonDocument doc(1024);
         doc["type"] = "TempStatus";
-        doc["temp"] = AM2320.readHumidity();
+        doc["temp"] = sensorth.getTemperature();
+        // Serial.print("Temperature: ");
+        // Serial.print(sensorth.getTemperature());
+        
 
-        char Serial[1024];
-        serializeJson(doc, Serial);
+        char final[1024];
+        serializeJson(doc, final);
 
-        ws.textAll(Serial);
+        ws.textAll(final);
     }
 
     void sendHum() {
         
+
         DynamicJsonDocument doc(1024);
         doc["type"] = "HumidityStatus";
-        doc["humidity"] = AM2320.readTemperature();
+        doc["humidity"] = sensorth.getHumidity();
+        // Serial.print("Humidity: ");
+        // Serial.println(sensorth.getHumidity());
+    
+        char final[1024];
+        serializeJson(doc, final);
 
-        char Serial[1024];
-        serializeJson(doc, Serial);
-
-        ws.textAll(Serial);
+        ws.textAll(final);
     }
 
     void sendNut() {
         DynamicJsonDocument doc(1024);
         doc["type"] = "NutrientsStatus";
-        doc["nutrients"] = sensor::getEC();
+        doc["nutrients"] = ceil(sensor::getEC()*100.0)/100.0;
 
         char Serial[1024];
         serializeJson(doc, Serial);
@@ -165,7 +178,7 @@ namespace webserver {
     void sendWaterTemp() {
         DynamicJsonDocument doc(1024);
         doc["type"] = "WaterStatus";
-        doc["waterLevel"] = sensor::readNTC();
+        doc["waterLevel"] = ceil(sensor::readNTC()*100.0)/100.0;
 
         char Serial[1024];
         serializeJson(doc, Serial);
@@ -195,6 +208,8 @@ namespace webserver {
 
     // ===== PUBLIC ===== //
     void begin() {
+
+        sensorth.begin();
         // Access Point
         WiFi.hostname(HOSTNAME);
 

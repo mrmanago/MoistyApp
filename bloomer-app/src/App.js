@@ -519,7 +519,7 @@ const App = () => {
               {selectedIndex === 0 &&
                 <React.Fragment>
                   {/* Nutrients */}
-                    <Grid item xs={6} md={3} lg={2}>
+                    <Grid item xs={8} md={3} lg={2}>
                       <Paper
                         sx={{
                           p: 2,
@@ -528,7 +528,7 @@ const App = () => {
                         }}
                       >
                         <Typography component="h2" variant="h6" color="primary" gutterBottom>
-                          Nutrients
+                          Nutrients (ppm)
                         </Typography>
                         <Typography component="h2" variant="h6" color="primary" gutterBottom>
                           {nutrients}
@@ -536,7 +536,7 @@ const App = () => {
                       </Paper>
                     </Grid>
                   {/* Water Level */}
-                    <Grid item xs={6} md={3} lg={2}>
+                    <Grid item xs={8} md={3} lg={2}>
                       <Paper
                         sx={{
                           p: 2,
@@ -545,15 +545,15 @@ const App = () => {
                         }}
                       >
                         <Typography component="h2" variant="h6" color="primary" gutterBottom>
-                          Water Level
+                          Water Temperature (°C)
                         </Typography>
                         <Typography component="h2" variant="h6" color="primary" gutterBottom>
-                          {waterLevel}
+                          {waterLevel} 
                         </Typography>
                       </Paper>
                     </Grid>
                   {/* Humidity */}
-                    <Grid item xs={6} md={3} lg={2}>
+                    <Grid item xs={8} md={3} lg={2}>
                       <Paper
                         sx={{
                           p: 2,
@@ -562,15 +562,32 @@ const App = () => {
                         }}
                       >
                         <Typography component="h2" variant="h6" color="primary" gutterBottom>
-                          Humidity
+                          Humidity (%)
                         </Typography>
                         <Typography component="h2" variant="h6" color="primary" gutterBottom>
                           {humidity}
                         </Typography>
                       </Paper>
                     </Grid>
+                  {/* Temp */}
+                    <Grid item xs={8} md={3} lg={2}>
+                      <Paper
+                        sx={{
+                          p: 2,
+                          display: "flex",
+                          flexDirection: "column",
+                        }}
+                      >
+                        <Typography component="h2" variant="h6" color="primary" gutterBottom>
+                          Temperature (°C)
+                        </Typography>
+                        <Typography component="h2" variant="h6" color="primary" gutterBottom>
+                          {temp}
+                        </Typography>
+                      </Paper>
+                    </Grid>
                   {/* LED Status */}
-                    <Grid item xs={6} md={3} lg={2}>
+                    <Grid item xs={8} md={3} lg={2}>
                       <Paper
                         sx={{
                           p: 2,
@@ -587,7 +604,7 @@ const App = () => {
                       </Paper>
                     </Grid>
                   {/* Pump Status */}
-                    <Grid item xs={6} md={3} lg={2}>
+                    <Grid item xs={8} md={3} lg={2}>
                       <Paper
                         sx={{
                           p: 2,
@@ -604,7 +621,7 @@ const App = () => {
                       </Paper>
                     </Grid>
                   {/* Fan Status */}
-                    <Grid item xs={6} md={3} lg={2}>
+                    <Grid item xs={8} md={3} lg={2}>
                       <Paper
                         sx={{
                           p: 2,
@@ -620,23 +637,6 @@ const App = () => {
                         </Typography>
                       </Paper>
                     </Grid>
-                  {/* Temp */}
-                  <Grid item xs={6} md={3} lg={2}>
-                    <Paper
-                      sx={{
-                        p: 2,
-                        display: "flex",
-                        flexDirection: "column",
-                      }}
-                    >
-                      <Typography component="h2" variant="h6" color="primary" gutterBottom>
-                        Temperature:
-                      </Typography>
-                      <Typography component="h2" variant="h6" color="primary" gutterBottom>
-                        {temp}
-                      </Typography>
-                    </Paper>
-                  </Grid>
                 </React.Fragment>
               }
               

@@ -1,6 +1,6 @@
 #include <ArduinoOTA.h>
 #include <Adafruit_Sensor.h>
-#include <Adafruit_AM2320.h>
+//#include <Adafruit_AM2320.h>
 #include <ArduinoJson.h>
 #include <typeinfo>
 #include <math.h>
