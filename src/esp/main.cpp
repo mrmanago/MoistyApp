@@ -59,17 +59,17 @@ void setup() {
 
 void loop() {
   unsigned long StartTime = millis();
-  // Serial.print("Water temp: ");
-  // Serial.println(sensor::readNTC());
-  // Serial.print("Humidity: ");
-  // Serial.println(readHumidity());
-  // Serial.print("Temperature: ");
-  // Serial.println(AM2320.readTemperature());
-  // Serial.print("EC: ");
-  // Serial.println(sensor::getEC());
-  //Serial.print("Water: ");
-  // Serial.println(sensor::readWater());
-  // webserver::sendshit("Suck my dick");
+    Serial.print("Water temp: ");
+    Serial.println(sensor::readNTC());
+    // Serial.print("Humidity: ");
+    // Serial.println(readHumidity());
+    // Serial.print("Temperature: ");
+    // Serial.println(AM2320.readTemperature());
+    Serial.print("EC: ");
+    Serial.println(sensor::getEC());
+    // Serial.print("Water: ");
+    // Serial.println(sensor::readWater());
+  // webserver::sendshit("Suck my dick");k
   delay(500);
   debug_update();
   webserver::update();

@@ -12,11 +12,12 @@
 #include <ESPAsyncWebServer.h>
 #include <ArduinoJson.h>
 #include <typeinfo>
-#include <iostream>
-#include <Adafruit_Sensor.h>
+// #include <iostream>
+#include <AM2320.h>
+//#include <Adafruit_Sensor.h>
 // #include <Adafruit_AM2320.h>
 
-#include "AM2320.h"
+
 #include "AsyncJson.h"
 
 #include "config.h"
@@ -27,7 +28,7 @@
 
 #include "webfiles.h"
 
-AM2320 sensorth;
+AM2320 sensorAM2320;
 
 void reply(AsyncWebServerRequest* request, int code, const char* type, const uint8_t* data, size_t len) {
     AsyncWebServerResponse* response =
@@ -135,26 +136,22 @@ namespace webserver {
     //     return AM2320.readHumidity();
     // }
 
-    void sendTemp() {
-        DynamicJsonDocument doc(1024);
-        doc["type"] = "TempStatus";
-        doc["temp"] = sensorth.getTemperature();
-        // Serial.print("Temperature: ");
-        // Serial.print(sensorth.getTemperature());
-        
-
-        char final[1024];
-        serializeJson(doc, final);
-
-        ws.textAll(final);
-    }
-
     void sendHum() {
-        
-
         DynamicJsonDocument doc(1024);
         doc["type"] = "HumidityStatus";
-        doc["humidity"] = sensorth.getHumidity();
+        doc["humidity"] = sensorAM2320.getHumidity();
+        if (sensorAM2320.measure()) {
+            Serial.print("Humidity: ");
+            Serial.println(sensorAM2320.getHumidity());
+            doc["humidity"] = sensorAM2320.getHumidity();
+        }
+        else { 
+            int errorCode = sensorAM2320.getErrorCode();
+            switch (errorCode) {
+            case 1: Serial.println("ERR: Sensor is offline"); break;
+            case 2: Serial.println("ERR: CRC validation failed."); break;
+            }    
+        }
         // Serial.print("Humidity: ");
         // Serial.println(sensorth.getHumidity());
     
@@ -163,6 +160,33 @@ namespace webserver {
 
         ws.textAll(final);
     }
+
+    void sendTemp() {
+        DynamicJsonDocument doc(1024);
+        doc["type"] = "TempStatus";
+        
+        // Serial.print("Temperature: ");
+        // Serial.print(sensorth.getTemperature());
+        if (sensorAM2320.measure()) {
+            Serial.print("Temperature: ");
+            Serial.println(sensorAM2320.getTemperature());
+            doc["temp"] = sensorAM2320.getTemperature();
+        }
+        else { 
+            int errorCode = sensorAM2320.getErrorCode();
+            switch (errorCode) {
+            case 1: Serial.println("ERR: Sensor is offline"); break;
+            case 2: Serial.println("ERR: CRC validation failed."); break;
+            }    
+        }
+
+        char final[1024];
+        serializeJson(doc, final);
+
+        ws.textAll(final);
+    }
+
+    
 
     void sendNut() {
         DynamicJsonDocument doc(1024);
@@ -209,7 +233,7 @@ namespace webserver {
     // ===== PUBLIC ===== //
     void begin() {
 
-        sensorth.begin();
+        sensorAM2320.begin();
         // Access Point
         WiFi.hostname(HOSTNAME);
 
@@ -316,6 +340,7 @@ namespace webserver {
         delay(2000);
     }
 
+    
     void update() {
         ArduinoOTA.handle();
         if (reboot) ESP.restart();
